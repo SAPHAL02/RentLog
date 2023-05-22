@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, file_names
 
 import 'package:flutter/material.dart';
+import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
@@ -33,32 +34,51 @@ class _BillInputPageState extends State<BillInputPage> {
   }
 
   Future<void> _createPDF() async {
-    final pdf = pw.Document();
+  final pdf = pw.Document();
 
-    double rentBill = double.tryParse(_rentController.text) ?? 0.0;
-    double electricityBill = double.tryParse(_electricityBillController.text) ?? 0.0;
-    double waterBill = double.tryParse(_waterBillController.text) ?? 0.0;
-    double maintenanceCharges = double.tryParse(_maintenanceChargesController.text) ?? 0.0;
+  double rentBill = double.tryParse(_rentController.text) ?? 0.0;
+  double electricityBill = double.tryParse(_electricityBillController.text) ?? 0.0;
+  double waterBill = double.tryParse(_waterBillController.text) ?? 0.0;
+  double maintenanceCharges = double.tryParse(_maintenanceChargesController.text) ?? 0.0;
 
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) {
-          return pw.Center(
-            child: pw.Column(
-              mainAxisAlignment: pw.MainAxisAlignment.center,
-              children: [
-                pw.Text('Rent (Rs): $rentBill', style: const pw.TextStyle(fontSize: 20)),
-                pw.Text('Electricity Bill (Rs): $electricityBill', style: const pw.TextStyle(fontSize: 20)),
-                pw.Text('Water Bill (Rs): $waterBill', style: const pw.TextStyle(fontSize: 20)),
-                pw.Text('Maintenance Charges (Rs): $maintenanceCharges', style: const pw.TextStyle(fontSize: 20)),
-                pw.Divider(),
-                pw.Text('Total (Rs): $_total', style: const pw.TextStyle(fontSize: 20)),
-              ],
+  pdf.addPage(
+    pw.Page(
+      build: (pw.Context context) {
+        return pw.Container(
+          padding: pw.EdgeInsets.all(20),
+          decoration: pw.BoxDecoration(
+            border: pw.Border.all(
+              color: PdfColors.black,
+              width: 2,
             ),
-          );
-        },
-      ),
-    );
+          ),
+          child: pw.Column(
+            crossAxisAlignment: pw.CrossAxisAlignment.start,
+            children: [
+              pw.Text(
+                'RentLog',
+                style: pw.TextStyle(
+                  fontSize: 34,
+                  fontWeight: pw.FontWeight.bold,
+                ),
+              ),
+              pw.SizedBox(height: 30),
+              pw.Text('Bill Details', style: pw.TextStyle(fontSize: 30)),
+              pw.Divider(thickness: 2),
+              pw.SizedBox(height: 15),
+              pw.Text('Rent (Rs): $rentBill', style: const pw.TextStyle(fontSize: 20)),
+              pw.Text('Electricity Bill (Rs): $electricityBill', style: const pw.TextStyle(fontSize: 20)),
+              pw.Text('Water Bill (Rs): $waterBill', style: const pw.TextStyle(fontSize: 20)),
+              pw.Text('Maintenance Charges (Rs): $maintenanceCharges', style: const pw.TextStyle(fontSize: 20)),
+              pw.SizedBox(height: 20),
+              pw.Divider(thickness: 2),
+              pw.Text('Total (Rs): $_total', style: const pw.TextStyle(fontSize: 25)),
+            ],
+          ),
+        );
+      },
+    ),
+  );
 
     final output = await getTemporaryDirectory();
     final file = File('${output.path}/bill.pdf');
