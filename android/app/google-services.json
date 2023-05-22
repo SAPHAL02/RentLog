@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "226038717438",
+    "project_id": "rentlog-14ca3",
+    "storage_bucket": "rentlog-14ca3.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:226038717438:android:417fd9eb5a39324b87feaf",
+        "android_client_info": {
+          "package_name": "com.example.rent_log"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "226038717438-ckh1r4s42inmnf40nl8ns704p2d7u0e0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBx11TfujIJyaMMJ0nEf_njvVPu7onWT2E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "226038717438-ckh1r4s42inmnf40nl8ns704p2d7u0e0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
