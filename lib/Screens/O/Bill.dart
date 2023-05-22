@@ -33,90 +33,104 @@ class _BillInputPageState extends State<BillInputPage> {
   }
 
   Future<void> _createPDF() async {
-  final pdf = pw.Document();
+    final pdf = pw.Document();
 
-  double rentBill = double.tryParse(_rentController.text) ?? 0.0;
-  double electricityBill = double.tryParse(_electricityBillController.text) ?? 0.0;
-  double waterBill = double.tryParse(_waterBillController.text) ?? 0.0;
-  double maintenanceCharges = double.tryParse(_maintenanceChargesController.text) ?? 0.0;
+    double rentBill = double.tryParse(_rentController.text) ?? 0.0;
+    double electricityBill = double.tryParse(_electricityBillController.text) ?? 0.0;
+    double waterBill = double.tryParse(_waterBillController.text) ?? 0.0;
+    double maintenanceCharges = double.tryParse(_maintenanceChargesController.text) ?? 0.0;
 
-  pdf.addPage(
-    pw.Page(
-      build: (pw.Context context) {
-        return pw.Center(
-          child: pw.Column(
-            mainAxisAlignment: pw.MainAxisAlignment.center,
-            children: [
-              pw.Text('Rent (Rs): $rentBill', style: const pw.TextStyle(fontSize: 20)),
-              pw.Text('Electricity Bill (Rs): $electricityBill', style: const pw.TextStyle(fontSize: 20)),
-              pw.Text('Water Bill (Rs): $waterBill', style: const pw.TextStyle(fontSize: 20)),
-              pw.Text('Maintenance Charges (Rs): $maintenanceCharges', style: const pw.TextStyle(fontSize: 20)),
-              pw.Divider(),
-              pw.Text('Total (Rs): $_total', style: const pw.TextStyle(fontSize: 20)),
-            ],
-          ),
-        );
-      },
-    ),
-  );
-
-  final output = await getTemporaryDirectory();
-  final file = File('${output.path}/bill.pdf');
-  await file.writeAsBytes(await pdf.save());
-
-  final pdfPath = file.path;
-
-  ScaffoldMessenger.of(context).showSnackBar(
-    SnackBar(
-      content: Text('PDF created successfully. Path: $pdfPath'),
-      action: SnackBarAction(
-        label: 'Open PDF',
-        onPressed: () {
-          _openPDF(pdfPath);
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Center(
+            child: pw.Column(
+              mainAxisAlignment: pw.MainAxisAlignment.center,
+              children: [
+                pw.Text('Rent (Rs): $rentBill', style: const pw.TextStyle(fontSize: 20)),
+                pw.Text('Electricity Bill (Rs): $electricityBill', style: const pw.TextStyle(fontSize: 20)),
+                pw.Text('Water Bill (Rs): $waterBill', style: const pw.TextStyle(fontSize: 20)),
+                pw.Text('Maintenance Charges (Rs): $maintenanceCharges', style: const pw.TextStyle(fontSize: 20)),
+                pw.Divider(),
+                pw.Text('Total (Rs): $_total', style: const pw.TextStyle(fontSize: 20)),
+              ],
+            ),
+          );
         },
       ),
-    ),
-  );
-}
+    );
 
-Future<void> _openPDF(String filePath) async {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => PDFView(filePath: filePath),
-    ),
-  );
-}
+    final output = await getTemporaryDirectory();
+    final file = File('${output.path}/bill.pdf');
+    await file.writeAsBytes(await pdf.save());
 
+    final pdfPath = file.path;
 
-Future<void> _showBill() async {
-  final output = await getTemporaryDirectory();
-  final file = File('${output.path}/bill.pdf');
-  final pdfPath = file.path;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('PDF created successfully. Path: $pdfPath'),
+        action: SnackBarAction(
+          label: 'Open PDF',
+          onPressed: () {
+            _openPDF(pdfPath);
+          },
+        ),
+      ),
+    );
+  }
 
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => PDFView(filePath: pdfPath),
-    ),
-  );
-}
+  Future<void> _openPDF(String filePath) async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PDFView(filePath: filePath),
+      ),
+    );
+  }
+
+  Future<void> _showBill() async {
+    final output = await getTemporaryDirectory();
+    final file = File('${output.path}/bill.pdf');
+    final pdfPath = file.path;
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => PDFView(filePath: pdfPath),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-      title: const Text(
-        'RentLog',
-        style: TextStyle(
-          fontSize: 24, // Set the font size to 24
-          fontWeight: FontWeight.bold, // Apply bold font weight
-          letterSpacing: 1.5, // Adjust letter spacing
-          color: Colors.white, // Set the text color
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight + 10),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                hexStringToColor("a2a595"),
+                hexStringToColor("e0cdbe"),
+                hexStringToColor("b4a284"),
+              ],
+            ),
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: const Text(
+              'RentLog',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2.5,
+                color: Colors.white,
+              ),
+            ),
+            centerTitle: true,
+          ),
         ),
-      ),
-      backgroundColor: Colors.transparent,
-      centerTitle: true,
       ),
       body: Container(
         width: MediaQuery.of(context).size.width,
@@ -136,7 +150,7 @@ Future<void> _showBill() async {
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               20,
-              MediaQuery.of(context).size.height * 0.15,
+              MediaQuery.of(context).size.height * 0.1,
               20,
               0,
             ),
@@ -207,19 +221,19 @@ Future<void> _showBill() async {
                 ),
                 const SizedBox(height: 16.0),
                 ElevatedButton(
-                    onPressed: () {
-                      _showBill();
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
+                  onPressed: () {
+                    _showBill();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                  ),
+                  child: const Text(
+                    'Show PDF',
+                    style: TextStyle(
+                      color: Colors.black87,
                     ),
-                    child: const Text(
-                      'Show PDF',
-                      style: TextStyle(
-                        color: Colors.black87,
-                      ),
-                    ),
-),
+                  ),
+                ),
               ],
             ),
           ),

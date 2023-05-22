@@ -29,18 +29,45 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      appBar: AppBar(
-      title: const Text(
-        'RentLog',
-        style: TextStyle(
-          fontSize: 24, // Set the font size to 24
-          fontWeight: FontWeight.bold, // Apply bold font weight
-          letterSpacing: 1.5, // Adjust letter spacing
-          color: Colors.white, // Set the text color
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight + 10),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                hexStringToColor("a2a595"),
+                hexStringToColor("e0cdbe"),
+                hexStringToColor("b4a284"),
+              ],
+            ),
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'RentLog',
+                  style: TextStyle(
+                    
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 1.5,
+                    color: Colors.white,
+                  ),
+                ),
+                FloatingActionButton(
+                  onPressed: _logout,
+                  backgroundColor: Colors.white,
+                  child: const Icon(Icons.logout, color: Colors.grey),
+                  mini: true,
+                ),
+              ],
+            ),
+            centerTitle: true,
+          ),
         ),
-      ),
-      backgroundColor: Colors.transparent,
-      centerTitle: true,
       ),
       body: Container(
         width: MediaQuery.of(context).size.width,
@@ -115,17 +142,6 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
                     );
                   }
                 },
-              ),
-            ),
-            Positioned(
-              bottom: 20,
-              right: 20,
-              child: FloatingActionButton(
-                onPressed: () {
-                  _logout();
-                },
-                backgroundColor: Colors.white,
-                child: const Icon(Icons.logout, color: Colors.grey),
               ),
             ),
           ],

@@ -48,21 +48,36 @@ class _OwnerPageState extends State<OwnerPage> {
     );
   }
 
-  @override
+ @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-      title: const Text(
-        'RentLog',
-        style: TextStyle(
-          fontSize: 24, // Set the font size to 24
-          fontWeight: FontWeight.bold, // Apply bold font weight
-          letterSpacing: 1.5, // Adjust letter spacing
-          color: Colors.white, // Set the text color
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(kToolbarHeight + 10),
+        child: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                hexStringToColor("a2a595"),
+                hexStringToColor("e0cdbe"),
+                hexStringToColor("b4a284"),
+              ],
+            ),
+          ),
+          child: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            title: const Text(
+              'RentLog',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2.5,
+                color: Colors.white,
+              ),
+            ),
+            centerTitle: true,
+          ),
         ),
-      ),
-      backgroundColor: Colors.transparent,
-      centerTitle: true,
       ),
       body: Container(
         
