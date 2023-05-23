@@ -77,8 +77,10 @@ class _SignInScreenState extends State<SignInScreen> {
                         context,
                         "Sign In",
                         () {
+                          
                           if (_emailTextController.text.isEmpty ||
                               _passwordTextController.text.isEmpty) {
+                            setState(() => loading = false);
                             showSnackbar(context,
                                 'Please enter both email and password');
                             return;

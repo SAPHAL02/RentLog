@@ -36,7 +36,7 @@ class _TenantState extends State<Tenant> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      title: Text(
+      title: const Text(
         'RentLog',
         style: TextStyle(
           fontSize: 24, // Set the font size to 24
