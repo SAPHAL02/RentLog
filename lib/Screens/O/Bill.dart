@@ -1,5 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, file_names
-
+import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
@@ -41,38 +41,55 @@ class _BillInputPageState extends State<BillInputPage> {
   double waterBill = double.tryParse(_waterBillController.text) ?? 0.0;
   double maintenanceCharges = double.tryParse(_maintenanceChargesController.text) ?? 0.0;
 
+  String currentDate = DateFormat.yMd().add_Hm().format(DateTime.now()); // Get current date and time
+
   pdf.addPage(
     pw.Page(
       build: (pw.Context context) {
         return pw.Container(
-          padding: pw.EdgeInsets.all(20),
+          padding: const pw.EdgeInsets.all(20),
           decoration: pw.BoxDecoration(
             border: pw.Border.all(
               color: PdfColors.black,
               width: 2,
             ),
           ),
-          child: pw.Column(
-            crossAxisAlignment: pw.CrossAxisAlignment.start,
+          child: pw.Stack(
             children: [
-              pw.Text(
-                'RentLog',
-                style: pw.TextStyle(
-                  fontSize: 34,
-                  fontWeight: pw.FontWeight.bold,
-                ),
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                   pw.SizedBox(height: 55),
+                  pw.Center(
+                    child: pw.Text(
+                      'RentLog',
+                      style: pw.TextStyle(
+                        fontSize: 34,
+                        fontWeight: pw.FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  pw.SizedBox(height: 30),
+                  pw.Text('Bill Details', style: const pw.TextStyle(fontSize: 30)),
+                  pw.Divider(thickness: 2),
+                  pw.SizedBox(height: 15),
+                  pw.Text('Rent (Rs): $rentBill', style: const pw.TextStyle(fontSize: 20)),
+                  pw.Text('Electricity Bill (Rs): $electricityBill', style: const pw.TextStyle(fontSize: 20)),
+                  pw.Text('Water Bill (Rs): $waterBill', style: const pw.TextStyle(fontSize: 20)),
+                  pw.Text('Maintenance Charges (Rs): $maintenanceCharges', style: const pw.TextStyle(fontSize: 20)),
+                  pw.SizedBox(height: 20),
+                  pw.Divider(thickness: 2),
+                  pw.Text('Total (Rs): $_total', style: const pw.TextStyle(fontSize: 25)),
+                ],
               ),
-              pw.SizedBox(height: 30),
-              pw.Text('Bill Details', style: pw.TextStyle(fontSize: 30)),
-              pw.Divider(thickness: 2),
-              pw.SizedBox(height: 15),
-              pw.Text('Rent (Rs): $rentBill', style: const pw.TextStyle(fontSize: 20)),
-              pw.Text('Electricity Bill (Rs): $electricityBill', style: const pw.TextStyle(fontSize: 20)),
-              pw.Text('Water Bill (Rs): $waterBill', style: const pw.TextStyle(fontSize: 20)),
-              pw.Text('Maintenance Charges (Rs): $maintenanceCharges', style: const pw.TextStyle(fontSize: 20)),
-              pw.SizedBox(height: 20),
-              pw.Divider(thickness: 2),
-              pw.Text('Total (Rs): $_total', style: const pw.TextStyle(fontSize: 25)),
+              pw.Positioned(
+                bottom: 0,
+                right: 0, 
+                  child: pw.Text(
+                    'Date: $currentDate',
+                    style: const pw.TextStyle(fontSize: 16),
+                  ),
+                ),
             ],
           ),
         );

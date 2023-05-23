@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:rent_log/Screens/Auth/Loading.dart';
 import 'package:rent_log/Screens/reset_password.dart';
 import 'package:rent_log/reusable/reusable_widget.dart';
-
 import 'package:rent_log/Screens/Auth/signup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:rent_log/utils/color_util.dart';
@@ -19,10 +19,11 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _passwordTextController = TextEditingController();
   final TextEditingController _emailTextController = TextEditingController();
+  bool loading= false;
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return loading ? const Loading() : Scaffold(
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -86,10 +87,12 @@ class _SignInScreenState extends State<SignInScreen> {
                         password: _passwordTextController.text,
                       )
                       .then((value) {
+                        setState(() => loading = true);
                         showSnackbar(context, 'Sign In Successful');
                         route();
                       })
                       .onError((error, stackTrace) {
+                        setState(() => loading = false);
                         showSnackbar(context, 'Invalid email or password');
                       });
                   },

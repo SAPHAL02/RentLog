@@ -1,6 +1,7 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:rent_log/Screens/Auth/Loading.dart';
 import 'package:rent_log/Screens/Auth/signin_screen.dart';
 import 'package:rent_log/reusable/reusable_widget.dart';
 import 'package:rent_log/utils/color_util.dart';
@@ -18,6 +19,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordTextController = TextEditingController();
   final TextEditingController _emailTextController = TextEditingController();
   final TextEditingController _userNameTextController = TextEditingController();
+  bool loading = false;
   var options = [
     'Owner',
     'Tenant',
@@ -42,17 +44,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
 
     final userDocRef = FirebaseFirestore.instance.collection('users').doc(userCredential.user!.uid);
-
+   
     await userDocRef.set({
       'email': _emailTextController.text,
       'role': role,
     });
-
+    
     showSnackbar(context, 'Account created');
     Navigator.push(context, MaterialPageRoute(builder: (context) => const SignInScreen()));
   } catch (e) {
     if (e is FirebaseAuthException) {
       if (e.code == 'email-already-in-use') {
+        setState(() => loading = false);
         showSnackbar(context, 'The email address is already in use.');
       }
     }
@@ -62,7 +65,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return loading? const Loading() : Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -159,6 +162,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                   } else if (_passwordTextController.text.length < 6) {
                     showSnackbar(context, 'Password should be at least 6 characters.');
                   } else {
+                    setState(() => loading = true);
                     createUser();
                   }
                 }),
