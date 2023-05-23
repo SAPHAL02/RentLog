@@ -19,101 +19,105 @@ class SignInScreen extends StatefulWidget {
 class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _passwordTextController = TextEditingController();
   final TextEditingController _emailTextController = TextEditingController();
-  bool loading= false;
+  bool loading = false;
 
   @override
   Widget build(BuildContext context) {
-    return loading ? const Loading() : Scaffold(
-      body: Container(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              hexStringToColor("a2a595"),
-              hexStringToColor("e0cdbe"),
-              hexStringToColor("b4a284"),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              20,
-              MediaQuery.of(context).size.height * 0.2,
-              20,
-              0,
-            ),
-            child: Column(
-              children: <Widget>[
-                logoWidget("assets/images/house.png"),
-                const SizedBox(
-                  height: 30,
+    return loading
+        ? const Loading()
+        : Scaffold(
+            body: Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    hexStringToColor("a2a595"),
+                    hexStringToColor("e0cdbe"),
+                    hexStringToColor("b4a284"),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
-                reusableTextField(
-                  "Enter email",
-                  Icons.person_outline,
-                  false,
-                  _emailTextController,
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
-                reusableTextField(
-                  "Enter password",
-                  Icons.lock_outline,
-                  true,
-                  _passwordTextController,
-                ),
-                const SizedBox(
-                  height: 5,
-                ),
-                forgetPassword(context),
-                firebaseUIButton(
-                  context,
-                  "Sign In",
-                  () {
-                    if (_emailTextController.text.isEmpty ||
-                        _passwordTextController.text.isEmpty) {
-                      showSnackbar(context, 'Please enter both email and password');
-                      return;
-                    }
+              ),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    20,
+                    MediaQuery.of(context).size.height * 0.2,
+                    20,
+                    0,
+                  ),
+                  child: Column(
+                    children: <Widget>[
+                      logoWidget("assets/images/house.png"),
+                      const SizedBox(
+                        height: 30,
+                      ),
+                      reusableTextField(
+                        "Enter email",
+                        Icons.person_outline,
+                        false,
+                        _emailTextController,
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      reusableTextField(
+                        "Enter password",
+                        Icons.lock_outline,
+                        true,
+                        _passwordTextController,
+                      ),
+                      const SizedBox(
+                        height: 5,
+                      ),
+                      forgetPassword(context),
+                      firebaseUIButton(
+                        context,
+                        "Sign In",
+                        () {
+                          if (_emailTextController.text.isEmpty ||
+                              _passwordTextController.text.isEmpty) {
+                            showSnackbar(context,
+                                'Please enter both email and password');
+                            return;
+                          }
 
-                    FirebaseAuth.instance
-                      .signInWithEmailAndPassword(
-                        email: _emailTextController.text,
-                        password: _passwordTextController.text,
-                      )
-                      .then((value) {
-                        setState(() => loading = true);
-                        showSnackbar(context, 'Sign In Successful');
-                        route();
-                      })
-                      .onError((error, stackTrace) {
-                        setState(() => loading = false);
-                        showSnackbar(context, 'Invalid email or password');
-                      });
-                  },
+                          FirebaseAuth.instance
+                              .signInWithEmailAndPassword(
+                            email: _emailTextController.text,
+                            password: _passwordTextController.text,
+                          )
+                              .then((value) {
+                            setState(() => loading = true);
+                            showSnackbar(context, 'Sign In Successful');
+                            route();
+                          }).onError((error, stackTrace) {
+                            setState(() => loading = false);
+                            showSnackbar(context, 'Invalid email or password');
+                          });
+                        },
+                      ),
+                      signUpOption(),
+                    ],
+                  ),
                 ),
-                signUpOption(),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
-    );
+          );
   }
 
   Row signUpOption() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Text("Don't have an account?", style: TextStyle(color: Colors.white70)),
+        const Text("Don't have an account?",
+            style: TextStyle(color: Colors.white70)),
         GestureDetector(
           onTap: () {
-            Navigator.push(context, MaterialPageRoute(builder: (context) => const SignUpScreen()));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => const SignUpScreen()));
           },
           child: const Text(
             " Sign Up",
@@ -135,7 +139,8 @@ class _SignInScreenState extends State<SignInScreen> {
           style: TextStyle(color: Colors.white70),
           textAlign: TextAlign.right,
         ),
-        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => const ResetPassword())),
+        onPressed: () => Navigator.push(context,
+            MaterialPageRoute(builder: (context) => const ResetPassword())),
       ),
     );
   }
@@ -151,7 +156,11 @@ class _SignInScreenState extends State<SignInScreen> {
 
   void route() {
     User? user = FirebaseAuth.instance.currentUser;
-    FirebaseFirestore.instance.collection('users').doc(user!.uid).get().then((DocumentSnapshot documentSnapshot) {
+    FirebaseFirestore.instance
+        .collection('users')
+        .doc(user!.uid)
+        .get()
+        .then((DocumentSnapshot documentSnapshot) {
       if (documentSnapshot.exists) {
         if (documentSnapshot.get('role') == "Owner") {
           Navigator.pushReplacement(

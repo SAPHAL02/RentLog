@@ -10,12 +10,12 @@ class Loading extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.brown[100],
-      child:const Center(
-      child:  SpinKitSpinningLines(
-        color: Colors.white,
-        size: 80.0,
-    ),
-    ),
+      child: const Center(
+        child: SpinKitSpinningLines(
+          color: Colors.white,
+          size: 80.0,
+        ),
+      ),
     );
   }
 }
