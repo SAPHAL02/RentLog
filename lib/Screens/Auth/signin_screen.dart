@@ -80,7 +80,6 @@ class _SignInScreenState extends State<SignInScreen> {
                           
                           if (_emailTextController.text.isEmpty ||
                               _passwordTextController.text.isEmpty) {
-                            setState(() => loading = false);
                             showSnackbar(context,
                                 'Please enter both email and password');
                             return;
@@ -96,7 +95,6 @@ class _SignInScreenState extends State<SignInScreen> {
                             showSnackbar(context, 'Sign In Successful');
                             route();
                           }).onError((error, stackTrace) {
-                            setState(() => loading = false);
                             showSnackbar(context, 'Invalid email or password');
                           });
                         },

@@ -166,7 +166,7 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
                           });
                         },
                         background: Container(
-                          color: Color.fromARGB(163, 170, 158, 147),
+                          color: const Color.fromARGB(163, 170, 158, 147),
                           alignment: Alignment.centerRight,
                           padding: const EdgeInsets.symmetric(horizontal: 10),
                           child: const Icon(Icons.delete, color: Colors.white),
