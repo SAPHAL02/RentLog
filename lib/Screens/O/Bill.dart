@@ -9,7 +9,9 @@ import '../../utils/color_util.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 
 class BillInputPage extends StatefulWidget {
-  const BillInputPage({Key? key}) : super(key: key);
+  final String roomId;
+
+  const BillInputPage({Key? key, required this.roomId}) : super(key: key);
 
   @override
   _BillInputPageState createState() => _BillInputPageState();
@@ -34,71 +36,71 @@ class _BillInputPageState extends State<BillInputPage> {
   }
 
   Future<void> _createPDF() async {
-  final pdf = pw.Document();
+    final pdf = pw.Document();
 
-  double rentBill = double.tryParse(_rentController.text) ?? 0.0;
-  double electricityBill = double.tryParse(_electricityBillController.text) ?? 0.0;
-  double waterBill = double.tryParse(_waterBillController.text) ?? 0.0;
-  double maintenanceCharges = double.tryParse(_maintenanceChargesController.text) ?? 0.0;
+    double rentBill = double.tryParse(_rentController.text) ?? 0.0;
+    double electricityBill = double.tryParse(_electricityBillController.text) ?? 0.0;
+    double waterBill = double.tryParse(_waterBillController.text) ?? 0.0;
+    double maintenanceCharges = double.tryParse(_maintenanceChargesController.text) ?? 0.0;
 
-  String currentDate = DateFormat.yMd().add_Hm().format(DateTime.now()); // Get current date and time
+    String currentDate = DateFormat.yMd().add_Hm().format(DateTime.now()); // Get current date and time
 
-  pdf.addPage(
-    pw.Page(
-      build: (pw.Context context) {
-        return pw.Container(
-          padding: const pw.EdgeInsets.all(20),
-          decoration: pw.BoxDecoration(
-            border: pw.Border.all(
-              color: PdfColors.black,
-              width: 2,
+    pdf.addPage(
+      pw.Page(
+        build: (pw.Context context) {
+          return pw.Container(
+            padding: const pw.EdgeInsets.all(20),
+            decoration: pw.BoxDecoration(
+              border: pw.Border.all(
+                color: PdfColors.black,
+                width: 2,
+              ),
             ),
-          ),
-          child: pw.Stack(
-            children: [
-              pw.Column(
-                crossAxisAlignment: pw.CrossAxisAlignment.start,
-                children: [
-                   pw.SizedBox(height: 55),
-                  pw.Center(
-                    child: pw.Text(
-                      'RentLog',
-                      style: pw.TextStyle(
-                        fontSize: 34,
-                        fontWeight: pw.FontWeight.bold,
+            child: pw.Stack(
+              children: [
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    pw.SizedBox(height: 55),
+                    pw.Center(
+                      child: pw.Text(
+                        'RentLog',
+                        style: pw.TextStyle(
+                          fontSize: 34,
+                          fontWeight: pw.FontWeight.bold,
+                        ),
                       ),
                     ),
-                  ),
-                  pw.SizedBox(height: 30),
-                  pw.Text('Bill Details', style: const pw.TextStyle(fontSize: 30)),
-                  pw.Divider(thickness: 2),
-                  pw.SizedBox(height: 15),
-                  pw.Text('Rent (Rs): $rentBill', style: const pw.TextStyle(fontSize: 20)),
-                  pw.Text('Electricity Bill (Rs): $electricityBill', style: const pw.TextStyle(fontSize: 20)),
-                  pw.Text('Water Bill (Rs): $waterBill', style: const pw.TextStyle(fontSize: 20)),
-                  pw.Text('Maintenance Charges (Rs): $maintenanceCharges', style: const pw.TextStyle(fontSize: 20)),
-                  pw.SizedBox(height: 20),
-                  pw.Divider(thickness: 2),
-                  pw.Text('Total (Rs): $_total', style: const pw.TextStyle(fontSize: 25)),
-                ],
-              ),
-              pw.Positioned(
-                bottom: 0,
-                right: 0, 
+                    pw.SizedBox(height: 30),
+                    pw.Text('Bill Details', style: const pw.TextStyle(fontSize: 30)),
+                    pw.Divider(thickness: 2),
+                    pw.SizedBox(height: 15),
+                    pw.Text('Rent (Rs): $rentBill', style: const pw.TextStyle(fontSize: 20)),
+                    pw.Text('Electricity Bill (Rs): $electricityBill', style: const pw.TextStyle(fontSize: 20)),
+                    pw.Text('Water Bill (Rs): $waterBill', style: const pw.TextStyle(fontSize: 20)),
+                    pw.Text('Maintenance Charges (Rs): $maintenanceCharges', style: const pw.TextStyle(fontSize: 20)),
+                    pw.SizedBox(height: 20),
+                    pw.Divider(thickness: 2),
+                    pw.Text('Total (Rs): $_total', style: const pw.TextStyle(fontSize: 25)),
+                  ],
+                ),
+                pw.Positioned(
+                  bottom: 0,
+                  right: 0,
                   child: pw.Text(
                     'Date: $currentDate',
                     style: const pw.TextStyle(fontSize: 16),
                   ),
                 ),
-            ],
-          ),
-        );
-      },
-    ),
-  );
+              ],
+            ),
+          );
+        },
+      ),
+    );
 
     final output = await getTemporaryDirectory();
-    final file = File('${output.path}/bill.pdf');
+    final file = File('${output.path}/bill_${widget.roomId}.pdf');
     await file.writeAsBytes(await pdf.save());
 
     final pdfPath = file.path;
@@ -127,7 +129,7 @@ class _BillInputPageState extends State<BillInputPage> {
 
   Future<void> _showBill() async {
     final output = await getTemporaryDirectory();
-    final file = File('${output.path}/bill.pdf');
+    final file = File('${output.path}/bill_${widget.roomId}.pdf');
     final pdfPath = file.path;
 
     Navigator.push(

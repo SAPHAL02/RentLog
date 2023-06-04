@@ -7,6 +7,7 @@ import '../../utils/color_util.dart';
 import 'package:rent_log/Screens/O/Bill.dart';
 
 
+
 class OwnerPage extends StatefulWidget {
   final String roomId;
 
@@ -36,7 +37,7 @@ class _OwnerPageState extends State<OwnerPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const BillInputPage(),
+        builder: (context) =>  BillInputPage(roomId: _uuid,),
       ),
     );
   }
