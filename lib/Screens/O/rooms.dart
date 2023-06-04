@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rent_log/Screens/Auth/signin_screen.dart';
 import 'package:rent_log/Screens/O/roomInfo.dart';
 import '../../utils/color_util.dart';
+import 'package:uuid/uuid.dart';
 
 class Room extends StatefulWidget {
   const Room({Key? key}) : super(key: key);
@@ -12,6 +14,7 @@ class Room extends StatefulWidget {
 
 class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
   List<String> roomNames = [];
+  List<String> roomIds = [];
   List<bool> roomRemovable = [];
 
   @override
@@ -20,15 +23,31 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
   @override
   void initState() {
     super.initState();
-    roomRemovable = List.generate(roomNames.length, (_) => false);
+    _loadRoomData();
   }
 
   @override
   void dispose() {
-    // Save the state here
-    // Store the `roomNames` list to persistent storage or any desired method
+    _saveRoomData();
     super.dispose();
   }
+
+  Future<void> _loadRoomData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      roomNames = prefs.getStringList('roomNames') ?? [];
+      roomIds = prefs.getStringList('roomIds') ?? [];
+      roomRemovable = List.generate(roomNames.length, (_) => false);
+    });
+  }
+
+  Future<void> _saveRoomData() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('roomNames', roomNames);
+    await prefs.setStringList('roomIds', roomIds);
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -90,7 +109,7 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
             Padding(
               padding: const EdgeInsets.all(10.0),
               child: GridView.builder(
-                itemCount: roomNames.length + 1, // Add 1 for "Add Room" button
+                itemCount: roomNames.length + 1,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 2,
                   mainAxisSpacing: 10,
@@ -98,7 +117,6 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
                 ),
                 itemBuilder: (BuildContext context, int index) {
                   if (index == roomNames.length) {
-                    // Last item, display "Add Room" button
                     return InkWell(
                       onTap: _addRoom,
                       child: Container(
@@ -119,7 +137,6 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
                       ),
                     );
                   } else {
-                    // Display existing room
                     return InkWell(
                       onLongPress: () {
                         setState(() {
@@ -129,14 +146,15 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
                       onTap: () {
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const OwnerPage(roomId: '',)),
+                           MaterialPageRoute(
+                                  builder: (context) => OwnerPage(roomId: roomIds[index]),
+                                ),
                         );
                       },
                       child: Dismissible(
                         key: UniqueKey(),
                         confirmDismiss: (DismissDirection direction) async {
                           if (direction == DismissDirection.endToStart) {
-                            // Show delete confirmation dialog
                             return await showDialog(
                               context: context,
                               builder: (BuildContext context) {
@@ -163,6 +181,7 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
                           setState(() {
                             roomNames.removeAt(index);
                             roomRemovable.removeAt(index);
+                            _saveRoomData(); // Save room data
                           });
                         },
                         background: Container(
@@ -200,14 +219,17 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
   }
 
   void _addRoom() {
-    setState(() {
-      // Generate a new room name and add it to the list
-      int newRoomNumber = roomNames.length + 1;
-      String newRoomName = "Room $newRoomNumber";
-      roomNames.add(newRoomName);
-      roomRemovable.add(false);
-    });
-  }
+        setState(() {
+          final uuid = Uuid();
+          String newRoomId = uuid.v4(); // Generate a unique room ID
+          int newRoomNumber = roomNames.length + 1;
+          String newRoomName = "Room $newRoomNumber";
+          roomNames.add(newRoomName);
+          roomIds.add(newRoomId); // Associate the ID with the room
+          roomRemovable.add(false);
+          _saveRoomData(); // Save room data
+        });
+      }
 
   void _logout() {
     Navigator.pushReplacement(

@@ -2,13 +2,15 @@
 
 import 'package:flutter/material.dart';
 import 'package:rent_log/Screens/O/Complaints.dart';
-import 'package:uuid/uuid.dart';
 import 'package:flutter/services.dart';
 import '../../utils/color_util.dart';
 import 'package:rent_log/Screens/O/Bill.dart';
 
+
 class OwnerPage extends StatefulWidget {
-  const OwnerPage({Key? key, required String roomId}) : super(key: key);
+  final String roomId;
+
+  const OwnerPage({Key? key, required this.roomId}) : super(key: key);
 
   @override
   _OwnerPageState createState() => _OwnerPageState();
@@ -20,7 +22,7 @@ class _OwnerPageState extends State<OwnerPage> {
   @override
   void initState() {
     super.initState();
-    _uuid = const Uuid().v4();
+    _uuid = widget.roomId;
   }
 
   void _copyUuidToClipboard() {
