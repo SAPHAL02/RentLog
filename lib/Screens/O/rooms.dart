@@ -4,6 +4,8 @@ import 'package:rent_log/Screens/Auth/signin_screen.dart';
 import 'package:rent_log/Screens/O/roomInfo.dart';
 import '../../utils/color_util.dart';
 import 'package:uuid/uuid.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class Room extends StatefulWidget {
   const Room({Key? key}) : super(key: key);
@@ -47,54 +49,80 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
     await prefs.setStringList('roomIds', roomIds);
   }
 
+  Future<void> _addRoom() async {
+  final uuid = Uuid();
+  String newRoomId = uuid.v4(); // Generate a unique room ID
+  int newRoomNumber = roomNames.length + 1;
+  String newRoomName = "Room $newRoomNumber";
 
+  setState(() {
+    roomNames.add(newRoomName);
+    roomIds.add(newRoomId); // Associate the ID with the room
+    roomRemovable.add(false);
+  });
+
+  String userId = getCurrentUserID(); // Get the current user's ID
+
+  // Store room ID in Firebase Firestore
+  DocumentReference userRef = FirebaseFirestore.instance
+      .collection('users') // Replace 'users' with the appropriate collection name in your Firestore database
+      .doc(userId);
+
+  // Update both roomNames and roomIds in Firestore
+  await userRef.update({
+    'roomNames': roomNames,
+    'roomIds': roomIds,
+  });
+
+  // Store room ID locally using shared preferences
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  List<String> localRoomIds = prefs.getStringList('roomIds') ?? [];
+  localRoomIds.add(newRoomId);
+  await prefs.setStringList('roomIds', localRoomIds);
+}
+
+
+
+
+  String getCurrentUserID() {
+    User? user = FirebaseAuth.instance.currentUser;
+    String userID = user?.uid ?? ''; // If the user is null, return an empty string
+    return userID;
+  }
+
+  void _logout() {
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const SignInScreen()),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight + 10),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                hexStringToColor("a2a595"),
-                hexStringToColor("e0cdbe"),
-                hexStringToColor("b4a284"),
-              ],
-            ),
-          ),
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            title: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'RentLog',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 1.5,
-                    color: Colors.white,
-                  ),
-                ),
-                FloatingActionButton(
-                  onPressed: _logout,
-                  backgroundColor: Colors.white,
-                  child: const Icon(Icons.logout, color: Colors.grey),
-                  mini: true,
-                ),
-              ],
-            ),
-            centerTitle: true,
+      appBar: AppBar(
+        elevation: 0, // Remove the shadow
+        backgroundColor: hexStringToColor("a2a595"), // Set the background color of the AppBar
+        title: const Text(
+          'RentLog',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.5,
+            color: Colors.white,
           ),
         ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            onPressed: _logout,
+            icon: const Icon(Icons.logout),
+          ),
+        ],
       ),
+      extendBodyBehindAppBar: true, // Extend the body behind the AppBar
       body: Container(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -102,12 +130,14 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
               hexStringToColor("e0cdbe"),
               hexStringToColor("b4a284"),
             ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
           ),
         ),
         child: Stack(
           children: [
             Padding(
-              padding: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.all(20.0),
               child: GridView.builder(
                 itemCount: roomNames.length + 1,
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -146,9 +176,9 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
                       onTap: () {
                         Navigator.push(
                           context,
-                           MaterialPageRoute(
-                                  builder: (context) => OwnerPage(roomId: roomIds[index]),
-                                ),
+                          MaterialPageRoute(
+                            builder: (context) => OwnerPage(roomId: roomIds[index]),
+                          ),
                         );
                       },
                       child: Dismissible(
@@ -215,26 +245,6 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
           ],
         ),
       ),
-    );
-  }
-
-  void _addRoom() {
-        setState(() {
-          final uuid = Uuid();
-          String newRoomId = uuid.v4(); // Generate a unique room ID
-          int newRoomNumber = roomNames.length + 1;
-          String newRoomName = "Room $newRoomNumber";
-          roomNames.add(newRoomName);
-          roomIds.add(newRoomId); // Associate the ID with the room
-          roomRemovable.add(false);
-          _saveRoomData(); // Save room data
-        });
-      }
-
-  void _logout() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const SignInScreen()),
     );
   }
 }
