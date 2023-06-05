@@ -1,3 +1,8 @@
+
+import 'dart:typed_data';
+
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:rent_log/Screens/Auth/signin_screen.dart';
@@ -5,7 +10,7 @@ import 'package:rent_log/Screens/O/roomInfo.dart';
 import '../../utils/color_util.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
+
 
 class Room extends StatefulWidget {
   const Room({Key? key}) : super(key: key);
@@ -18,6 +23,15 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
   List<String> roomNames = [];
   List<String> roomIds = [];
   List<bool> roomRemovable = [];
+
+
+String getCurrentUserID() {
+  User? user = FirebaseAuth.instance.currentUser;
+  String userID = user?.uid ?? ''; // If the user is null, return an empty string
+  return userID;
+}
+
+
 
   @override
   bool get wantKeepAlive => true;
@@ -49,6 +63,7 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
     await prefs.setStringList('roomIds', roomIds);
   }
 
+
   Future<void> _addRoom() async {
   final uuid = Uuid();
   String newRoomId = uuid.v4(); // Generate a unique room ID
@@ -62,16 +77,14 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
   });
 
   String userId = getCurrentUserID(); // Get the current user's ID
+  String userEmail = FirebaseAuth.instance.currentUser?.email ?? ''; // Get the current user's email
 
-  // Store room ID in Firebase Firestore
-  DocumentReference userRef = FirebaseFirestore.instance
-      .collection('users') // Replace 'users' with the appropriate collection name in your Firestore database
-      .doc(userId);
-
-  // Update both roomNames and roomIds in Firestore
+  // Store room ID and associated email in Firebase Firestore
+  DocumentReference userRef = FirebaseFirestore.instance.collection('users').doc(userId);
   await userRef.update({
     'roomNames': roomNames,
     'roomIds': roomIds,
+    'userEmail': userEmail, // Add the userEmail field
   });
 
   // Store room ID locally using shared preferences
@@ -79,16 +92,14 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
   List<String> localRoomIds = prefs.getStringList('roomIds') ?? [];
   localRoomIds.add(newRoomId);
   await prefs.setStringList('roomIds', localRoomIds);
+
+  // Create an email folder with the email of the current user
+  firebase_storage.Reference userEmailFolderRef = firebase_storage.FirebaseStorage.instance.ref('rooms/$userEmail/');
+  Uint8List emptyData = Uint8List.fromList([0]); // A single dummy byte
+  await userEmailFolderRef.child('$userEmail.txt').putData(emptyData);
 }
 
 
-
-
-  String getCurrentUserID() {
-    User? user = FirebaseAuth.instance.currentUser;
-    String userID = user?.uid ?? ''; // If the user is null, return an empty string
-    return userID;
-  }
 
   void _logout() {
     Navigator.pushReplacement(

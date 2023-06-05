@@ -1,4 +1,5 @@
 // ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api, file_names
+
 import 'package:intl/intl.dart';
 import 'package:flutter/material.dart';
 import 'package:pdf/pdf.dart';
@@ -7,6 +8,8 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import '../../utils/color_util.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+
 
 class BillInputPage extends StatefulWidget {
   final String roomId;
@@ -36,87 +39,104 @@ class _BillInputPageState extends State<BillInputPage> {
   }
 
   Future<void> _createPDF() async {
-    final pdf = pw.Document();
+  final pdf = pw.Document();
 
-    double rentBill = double.tryParse(_rentController.text) ?? 0.0;
-    double electricityBill = double.tryParse(_electricityBillController.text) ?? 0.0;
-    double waterBill = double.tryParse(_waterBillController.text) ?? 0.0;
-    double maintenanceCharges = double.tryParse(_maintenanceChargesController.text) ?? 0.0;
+  double rentBill = double.tryParse(_rentController.text) ?? 0.0;
+  double electricityBill = double.tryParse(_electricityBillController.text) ?? 0.0;
+  double waterBill = double.tryParse(_waterBillController.text) ?? 0.0;
+  double maintenanceCharges = double.tryParse(_maintenanceChargesController.text) ?? 0.0;
 
-    String currentDate = DateFormat.yMd().add_Hm().format(DateTime.now()); // Get current date and time
+  String currentDate = DateFormat.yMd().add_Hm().format(DateTime.now()); // Get current date and time
 
-    pdf.addPage(
-      pw.Page(
-        build: (pw.Context context) {
-          return pw.Container(
-            padding: const pw.EdgeInsets.all(20),
-            decoration: pw.BoxDecoration(
-              border: pw.Border.all(
-                color: PdfColors.black,
-                width: 2,
-              ),
+  pdf.addPage(
+    pw.Page(
+      build: (pw.Context context) {
+        return pw.Container(
+          padding: const pw.EdgeInsets.all(20),
+          decoration: pw.BoxDecoration(
+            border: pw.Border.all(
+              color: PdfColors.black,
+              width: 2,
             ),
-            child: pw.Stack(
-              children: [
-                pw.Column(
-                  crossAxisAlignment: pw.CrossAxisAlignment.start,
-                  children: [
-                    pw.SizedBox(height: 55),
-                    pw.Center(
-                      child: pw.Text(
-                        'RentLog',
-                        style: pw.TextStyle(
-                          fontSize: 34,
-                          fontWeight: pw.FontWeight.bold,
-                        ),
+          ),
+          child: pw.Stack(
+            children: [
+              pw.Column(
+                crossAxisAlignment: pw.CrossAxisAlignment.start,
+                children: [
+                  pw.SizedBox(height: 55),
+                  pw.Center(
+                    child: pw.Text(
+                      'RentLog',
+                      style: pw.TextStyle(
+                        fontSize: 34,
+                        fontWeight: pw.FontWeight.bold,
                       ),
                     ),
-                    pw.SizedBox(height: 30),
-                    pw.Text('Bill Details', style: const pw.TextStyle(fontSize: 30)),
-                    pw.Divider(thickness: 2),
-                    pw.SizedBox(height: 15),
-                    pw.Text('Rent (Rs): $rentBill', style: const pw.TextStyle(fontSize: 20)),
-                    pw.Text('Electricity Bill (Rs): $electricityBill', style: const pw.TextStyle(fontSize: 20)),
-                    pw.Text('Water Bill (Rs): $waterBill', style: const pw.TextStyle(fontSize: 20)),
-                    pw.Text('Maintenance Charges (Rs): $maintenanceCharges', style: const pw.TextStyle(fontSize: 20)),
-                    pw.SizedBox(height: 20),
-                    pw.Divider(thickness: 2),
-                    pw.Text('Total (Rs): $_total', style: const pw.TextStyle(fontSize: 25)),
-                  ],
-                ),
-                pw.Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: pw.Text(
-                    'Date: $currentDate',
-                    style: const pw.TextStyle(fontSize: 16),
                   ),
+                  pw.SizedBox(height: 30),
+                  pw.Text('Bill Details', style: const pw.TextStyle(fontSize: 30)),
+                  pw.Divider(thickness: 2),
+                  pw.SizedBox(height: 15),
+                  pw.Text('Rent (Rs): $rentBill', style: const pw.TextStyle(fontSize: 20)),
+                  pw.Text('Electricity Bill (Rs): $electricityBill', style: const pw.TextStyle(fontSize: 20)),
+                  pw.Text('Water Bill (Rs): $waterBill', style: const pw.TextStyle(fontSize: 20)),
+                  pw.Text('Maintenance Charges (Rs): $maintenanceCharges', style: const pw.TextStyle(fontSize: 20)),
+                  pw.SizedBox(height: 20),
+                  pw.Divider(thickness: 2),
+                  pw.Text('Total (Rs): $_total', style: const pw.TextStyle(fontSize: 25)),
+                ],
+              ),
+              pw.Positioned(
+                bottom: 0,
+                right: 0,
+                child: pw.Text(
+                  'Date: $currentDate',
+                  style: const pw.TextStyle(fontSize: 16),
                 ),
-              ],
-            ),
-          );
-        },
-      ),
-    );
+              ),
+            ],
+          ),
+        );
+      },
+    ),
+  );
 
-    final output = await getTemporaryDirectory();
-    final file = File('${output.path}/bill_${widget.roomId}.pdf');
-    await file.writeAsBytes(await pdf.save());
+  final output = await getTemporaryDirectory();
+  final file = File('${output.path}/bill_${widget.roomId}.pdf');
+  await file.writeAsBytes(await pdf.save());
+  
 
-    final pdfPath = file.path;
+  final storageRef = firebase_storage.FirebaseStorage.instance
+  .ref()
+  .child('rooms')
+  .child(widget.roomId)
+  .child('bill_${widget.roomId}.pdf');
+
+  try {
+    final uploadTask = storageRef.putFile(file);
+    final snapshot = await uploadTask;
+    final downloadURL = await snapshot.ref.getDownloadURL();
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('PDF created successfully. Path: $pdfPath'),
+        content: const Text('PDF created and uploaded successfully.'),
         action: SnackBarAction(
           label: 'Open PDF',
           onPressed: () {
-            _openPDF(pdfPath);
+            _openPDF(downloadURL);
           },
         ),
       ),
     );
+  } catch (error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Error uploading PDF. Please try again.'),
+      ),
+    );
   }
+}
 
   Future<void> _openPDF(String filePath) async {
     Navigator.push(
