@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:shared_preferences/shared_preferences.dart';
 
-class ComplaintPage extends StatefulWidget {
+class MakeComplaint extends StatefulWidget {
   final String roomId;
 
-  const ComplaintPage({Key? key, required this.roomId}) : super(key: key);
+  const MakeComplaint({Key? key, required this.roomId}) : super(key: key);
 
   @override
-  _ComplaintPageState createState() => _ComplaintPageState();
+  _MakeComplaintState createState() => _MakeComplaintState();
 }
 
-class _ComplaintPageState extends State<ComplaintPage> {
+class _MakeComplaintState extends State<MakeComplaint> {
   final TextEditingController _complaintController = TextEditingController();
   List<String> _complaints = [];
 

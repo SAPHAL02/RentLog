@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:rent_log/Screens/Auth/signin_screen.dart';
-import 'package:rent_log/Screens/T/Complaints.dart';
+import 'package:rent_log/Screens/T/MakeComplaints.dart';
 import '../../utils/color_util.dart';
 
 class TenantInfo extends StatefulWidget {
@@ -297,7 +297,7 @@ Future<void> _confirmExit() async {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => ComplaintPage(roomId: widget.roomId),
+                          builder: (context) => MakeComplaint(roomId: widget.roomId),
                         ),
                       );
                     }, // Disable the button if roomId is not passed

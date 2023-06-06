@@ -3,6 +3,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
+import 'package:rent_log/Screens/O/viewComplaint.dart';
 import '../../utils/color_util.dart';
 import 'package:rent_log/Screens/O/Bill.dart';
 
@@ -43,8 +44,13 @@ class _OwnerPageState extends State<OwnerPage> {
   }
 
   void _navigateToComplaintPage() {
-   
-  }
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => ViewComplaint(roomId: _uuid,),
+    ),
+  );
+}
 
  @override
   Widget build(BuildContext context) {
