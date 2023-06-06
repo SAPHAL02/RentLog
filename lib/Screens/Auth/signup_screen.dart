@@ -18,7 +18,7 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordTextController = TextEditingController();
   final TextEditingController _emailTextController = TextEditingController();
-  final TextEditingController _userNameTextController = TextEditingController();
+  final TextEditingController _confirmPasswordTextController = TextEditingController();
   bool loading = false;
   var options = [
     'Owner',
@@ -104,11 +104,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       const SizedBox(
                         height: 20,
                       ),
-                      reusableTextField("Enter UserName", Icons.person_outline,
-                          false, _userNameTextController),
-                      const SizedBox(
-                        height: 20,
-                      ),
                       reusableTextField("Enter Email Id", Icons.person_outline,
                           false, _emailTextController),
                       const SizedBox(
@@ -116,6 +111,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       ),
                       reusableTextField("Enter Password", Icons.lock_outlined,
                           true, _passwordTextController),
+                      const SizedBox(
+                        height: 20,
+                      ),
+                      reusableTextField(
+                        "Confirm Password",
+                        Icons.lock_outlined,
+                        true,
+                        _confirmPasswordTextController,
+                      ),
                       const SizedBox(
                         height: 20,
                       ),
@@ -161,13 +165,16 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                       firebaseUIButton(context, "Sign Up", () {
-                        if (_userNameTextController.text.isEmpty) {
-                          showSnackbar(context, 'Please enter a username.');
-                        } else if (_emailTextController.text.isEmpty) {
+                        if (_emailTextController.text.isEmpty) {
                           showSnackbar(
                               context, 'Please enter an email address.');
                         } else if (_passwordTextController.text.isEmpty) {
                           showSnackbar(context, 'Please enter a password.');
+                        } else if (_confirmPasswordTextController.text.isEmpty) {
+                          showSnackbar(context, 'Please confirm the password.');
+                        } else if (_passwordTextController.text !=
+                            _confirmPasswordTextController.text) {
+                          showSnackbar(context, 'Passwords do not match.');
                         } else if (_passwordTextController.text.length < 6) {
                           showSnackbar(context,
                               'Password should be at least 6 characters.');

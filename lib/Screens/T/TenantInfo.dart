@@ -1,10 +1,12 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
 import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:flutter/material.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:rent_log/Screens/Auth/signin_screen.dart';
+import 'package:rent_log/Screens/T/Complaints.dart';
 import '../../utils/color_util.dart';
 
 class TenantInfo extends StatefulWidget {
@@ -19,6 +21,8 @@ class TenantInfo extends StatefulWidget {
 class _TenantInfoState extends State<TenantInfo> {
   String? pdfFilePath; // Variable to hold the PDF file path
   Stream<firebase_storage.ListResult>? stream; // Stream for listening to changes in the folder
+
+
 
   void showBill() async {
     bool doesFolderExist = await _checkFolderExistence();
@@ -67,8 +71,8 @@ class _TenantInfoState extends State<TenantInfo> {
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Room ID'),
-            content: const Text('The room folder does not exist.'),
+            
+            content: const Text('No Bill is generated.'),
             actions: [
               ElevatedButton(
                 onPressed: () {
@@ -82,6 +86,37 @@ class _TenantInfoState extends State<TenantInfo> {
       );
     }
   }
+
+
+Future<void> _confirmExit() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Confirm Exit'),
+          content: const Text('Are you sure you want to exit the room?'),
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SignInScreen()),
+                );
+              },
+              child: const Text('Exit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
   Future<bool> _checkFolderExistence() async {
     String folderPath = 'rooms/${widget.roomId}';
@@ -165,7 +200,7 @@ class _TenantInfoState extends State<TenantInfo> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight + 10),
+        preferredSize: const Size.fromHeight(kToolbarHeight +5),
         child: Container(
           decoration: BoxDecoration(
             gradient: LinearGradient(
@@ -179,19 +214,35 @@ class _TenantInfoState extends State<TenantInfo> {
           child: AppBar(
             backgroundColor: Colors.transparent,
             elevation: 0,
-            title: const Text(
-              'RentLog',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2.5,
-                color: Colors.white,
-              ),
+            automaticallyImplyLeading: false, // Remove the back button
+            title: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const Text(
+                  'RentLog',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2.5,
+                    color: Colors.white,
+                  ),
+                ),
+                TextButton(
+                  onPressed: _confirmExit,
+                  child: const Text(
+                    '\t\t\tExit\nRoom',
+                    style: TextStyle(
+                      fontSize: 18,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
             ),
-            centerTitle: true,
           ),
         ),
       ),
+      
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
@@ -239,7 +290,13 @@ class _TenantInfoState extends State<TenantInfo> {
                 const SizedBox(height: 32.0),
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed:  (){
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const ComplaintPage()),
+                        );
+                      },
+                    
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10.0,
