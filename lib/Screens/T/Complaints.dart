@@ -1,9 +1,11 @@
-// ignore_for_file: library_private_types_in_public_api, file_names
-
 import 'package:flutter/material.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ComplaintPage extends StatefulWidget {
-  const ComplaintPage({Key? key}) : super(key: key);
+  final String roomId;
+
+  const ComplaintPage({Key? key, required this.roomId}) : super(key: key);
 
   @override
   _ComplaintPageState createState() => _ComplaintPageState();
@@ -11,22 +13,149 @@ class ComplaintPage extends StatefulWidget {
 
 class _ComplaintPageState extends State<ComplaintPage> {
   final TextEditingController _complaintController = TextEditingController();
+  List<String> _complaints = [];
 
-  void _submitComplaint() {
-    // Code to handle complaint submission
+  @override
+  void initState() {
+    super.initState();
+    _loadComplaints();
+  }
+
+  Future<void> _loadComplaints() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _complaints = prefs.getStringList('complaints_${widget.roomId}') ?? [];
+      _complaints.sort();
+      _complaints = _complaints.reversed.toList();
+    });
+  }
+
+  Future<void> _saveComplaints() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList('complaints_${widget.roomId}', _complaints);
+  }
+
+  Future<void> _submitComplaint() async {
     String complaintText = _complaintController.text;
-    // Perform any necessary actions with the complaint text, such as sending it to the server or storing it locally
 
-    // Show a confirmation dialog or navigate to a success page
+    if (complaintText.trim().isEmpty) {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: const Text(
+              'Please enter a valid complaint.',
+              textAlign: TextAlign.center,
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      setState(() {
+        _complaints.insert(0, complaintText);
+      });
+
+      await _saveComplaints();
+      await _saveComplaintsToFirebase();
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: const Text(
+              'Your complaint has been submitted.',
+              textAlign: TextAlign.center,
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('OK'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        },
+      );
+
+      _complaintController.clear();
+    }
+  }
+
+  Future<void> _saveComplaintsToFirebase() async {
+    String roomId = widget.roomId;
+    String folderName = roomId;
+    String fileName = 'complaints_$roomId.txt';
+
+    String content = '';
+    for (int i = 0; i < _complaints.length; i++) {
+      String complaint = _complaints[i];
+      int complaintNumber = _complaints.length - i;
+      content += '$complaintNumber. $complaint\n';
+    }
+
+    try {
+      firebase_storage.Reference roomsRef =
+          firebase_storage.FirebaseStorage.instance.ref().child('rooms');
+
+      firebase_storage.ListResult result = await roomsRef.listAll();
+
+      bool folderExists = false;
+
+      for (var prefix in result.prefixes) {
+        if (prefix.name == folderName) {
+          folderExists = true;
+          break;
+        }
+      }
+
+      if (!folderExists) {
+        print('Folder not found: $folderName');
+      }
+
+      firebase_storage.Reference fileRef =
+          roomsRef.child('$folderName/$fileName');
+      await fileRef.putString(content);
+    } catch (e) {
+      print('Error saving complaints to Firebase Storage: $e');
+    }
+  }
+
+  void _viewComplaints() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Complaint Submitted'),
-          content: Text('Your complaint has been submitted: $complaintText'),
+          title: const Text('Complaints'),
+          content: SizedBox(
+            height: 200,
+            child: ListView.builder(
+              itemCount: _complaints.length,
+              itemBuilder: (BuildContext context, int index) {
+                String complaint = _complaints[index];
+                int complaintNumber = _complaints.length - index;
+                return ListTile(
+                  title: Text(
+                    '$complaintNumber. $complaint',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
           actions: <Widget>[
             TextButton(
-              child: const Text('OK'),
+              child: const Text('Close'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -35,9 +164,6 @@ class _ComplaintPageState extends State<ComplaintPage> {
         );
       },
     );
-
-    // Clear the text field
-    _complaintController.clear();
   }
 
   @override
@@ -62,6 +188,11 @@ class _ComplaintPageState extends State<ComplaintPage> {
             ElevatedButton(
               onPressed: _submitComplaint,
               child: const Text('Submit Complaint'),
+            ),
+            const SizedBox(height: 16.0),
+            ElevatedButton(
+              onPressed: _viewComplaints,
+              child: const Text('View Complaints'),
             ),
           ],
         ),

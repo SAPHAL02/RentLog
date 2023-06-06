@@ -88,6 +88,9 @@ class _TenantInfoState extends State<TenantInfo> {
   }
 
 
+
+
+
 Future<void> _confirmExit() async {
     showDialog(
       context: context,
@@ -290,12 +293,15 @@ Future<void> _confirmExit() async {
                 const SizedBox(height: 32.0),
                 Center(
                   child: ElevatedButton(
-                    onPressed:  (){
+                    onPressed: () {
                       Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => const ComplaintPage()),
-                        );
-                      },
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ComplaintPage(roomId: widget.roomId),
+                        ),
+                      );
+                    }, // Disable the button if roomId is not passed
+
                     
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(

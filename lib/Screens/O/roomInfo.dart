@@ -1,7 +1,7 @@
 // ignore_for_file: library_private_types_in_public_api, file_names
 
 import 'package:flutter/material.dart';
-import 'package:rent_log/Screens/T/Complaints.dart';
+
 import 'package:flutter/services.dart';
 import '../../utils/color_util.dart';
 import 'package:rent_log/Screens/O/Bill.dart';
@@ -43,12 +43,7 @@ class _OwnerPageState extends State<OwnerPage> {
   }
 
   void _navigateToComplaintPage() {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => const ComplaintPage(),
-      ),
-    );
+   
   }
 
  @override
