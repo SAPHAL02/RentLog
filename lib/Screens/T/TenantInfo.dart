@@ -7,6 +7,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:rent_log/Screens/Auth/signin_screen.dart';
 import 'package:rent_log/Screens/T/MakeComplaints.dart';
 import 'package:rent_log/Screens/T/ViewDueDate.dart';
+import 'package:rent_log/Screens/T/ViewServiceProviders.dart';
 import '../../utils/color_util.dart';
 
 
@@ -105,6 +106,15 @@ void _navigateToDuedatePage() {
     context,
     MaterialPageRoute(
       builder: (context) => ViewDuedate(roomId: widget.roomId),
+    ),
+  );
+}
+
+void _navigateToServicePage() {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => ViewServiceProviders(roomId: widget.roomId),
     ),
   );
 }
@@ -348,7 +358,7 @@ Future<void> _confirmExit() async {
                 const SizedBox(height: 32.0),
                 Center(
                   child: ElevatedButton(
-                    onPressed: () {},
+                    onPressed: _navigateToServicePage,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 10.0,

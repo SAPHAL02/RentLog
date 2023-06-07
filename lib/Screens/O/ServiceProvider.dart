@@ -218,8 +218,9 @@ Future<void> _saveDueDateToFirebase() async {
     // Create the content of the file with contact names and numbers
     String content = '';
     for (int i = 0; i < selectedContactNames.length; i++) {
-      content += 'Contact Name: ${selectedContactNames[i]}\n';
-      content += 'Contact Number: ${selectedContactNumbers[i]}\n';
+      content += 'Provider ${i + 1}:\n';
+      content += 'Name: ${selectedContactNames[i]}\n';
+      content += 'Number: ${selectedContactNumbers[i]}\n\n';
     }
 
     firebase_storage.Reference fileRef = roomsRef.child('$folderName/$fileName');
@@ -240,6 +241,7 @@ Future<void> _saveDueDateToFirebase() async {
     );
   }
 }
+
 
 
 
