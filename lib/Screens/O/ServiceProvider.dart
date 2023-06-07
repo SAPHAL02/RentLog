@@ -1,9 +1,11 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
 import 'package:contacts_service/contacts_service.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:rent_log/Screens/O/services_utils.dart';
+import 'dart:io';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:rent_log/utils/color_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ServiceProviders extends StatefulWidget {
@@ -16,40 +18,33 @@ class ServiceProviders extends StatefulWidget {
 }
 
 class _ServiceProvidersState extends State<ServiceProviders> {
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
+  List<Contact>? contacts;
+  List<String> selectedContactNames = [];
+  List<String> selectedContactNumbers = [];
 
   @override
   void initState() {
     super.initState();
-    askContactsPermission();
   }
 
-  Future askContactsPermission() async {
-    final permission = await ContactUtils.getContactPermission();
-    print('Contact permission: $permission');
-    switch (permission) {
-      case PermissionStatus.granted:
-        uploadContacts();
-        break;
-      default:
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Theme.of(context).colorScheme.error,
-            content: const Text('Please allow to "Upload Contacts"'),
-            duration: const Duration(seconds: 3),
-          ),
-        );
-        break;
+  Future<void> askContactsPermission() async {
+    final permission = await Permission.contacts.request();
+    if (permission.isGranted) {
+      uploadContacts();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Theme.of(context).colorScheme.error,
+          content: const Text('Please allow access to contacts'),
+          duration: const Duration(seconds: 3),
+        ),
+      );
     }
   }
 
-  Future uploadContacts() async {
-  final contacts = (await ContactsService.getContacts(withThumbnails: false)).toList();
+ Future<void> uploadContacts() async {
+  contacts = (await ContactsService.getContacts(withThumbnails: false)).toList();
   print('Contacts: $contacts');
-
-  // Create a list to store selected contact names and numbers
-  final List<String> selectedContactNames = [];
-  final List<String> selectedContactNumbers = [];
 
   // Delay the showDialog to allow the current build cycle to complete
   await Future.delayed(Duration.zero);
@@ -68,9 +63,9 @@ class _ServiceProvidersState extends State<ServiceProviders> {
               content: SizedBox(
                 width: double.maxFinite,
                 child: ListView.builder(
-                  itemCount: contacts.length,
+                  itemCount: contacts!.length,
                   itemBuilder: (BuildContext context, int index) {
-                    final contact = contacts[index];
+                    final contact = contacts![index];
                     return ListTile(
                       title: Row(
                         children: [
@@ -86,9 +81,9 @@ class _ServiceProvidersState extends State<ServiceProviders> {
                             ),
                             child: selectedContactNames.contains(contact.displayName)
                                 ? Icon(
-                                    Icons.check,
-                                    color: Colors.green,
-                                  )
+                              Icons.check,
+                              color: Colors.green,
+                            )
                                 : null,
                           ),
                           SizedBox(width: 16),
@@ -120,13 +115,20 @@ class _ServiceProvidersState extends State<ServiceProviders> {
                   child: const Text('Cancel'),
                 ),
                 TextButton(
-                  onPressed: () {
-                    // Print the selected contact names and numbers
-                    for (int i = 0; i < selectedContactNames.length; i++) {
-                      print('Contact Name: ${selectedContactNames[i]}');
-                      print('Contact Number: ${selectedContactNumbers[i]}');
-                    }
+                  onPressed: () async {
+                    
                     Navigator.of(context).pop();
+
+                    // Store the selected contacts in shared preferences
+                    final prefs = await SharedPreferences.getInstance();
+                    prefs.setStringList('selectedContacts', selectedContactNames);
+
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('Selected contacts saved successfully'),
+                        duration: Duration(seconds: 2),
+                      ),
+                    );
                   },
                   child: const Text('Done'),
                 ),
@@ -137,53 +139,170 @@ class _ServiceProvidersState extends State<ServiceProviders> {
       );
     },
   );
+}
 
-  // Store the selected contacts in shared preferences
-  final prefs = await SharedPreferences.getInstance();
-  prefs.setStringList('selectedContacts', selectedContactNames);
 
-  print('Upload completed.');
+  Future<void> viewProviders() async {
+  try {
+    final prefs = await SharedPreferences.getInstance();
+    final selectedContacts = prefs.getStringList('selectedContacts');
+
+    if (selectedContacts != null && selectedContacts.isNotEmpty) {
+      final content = selectedContacts.map((name) {
+        final index = selectedContactNames.indexOf(name);
+        final number = selectedContactNumbers[index];
+        return '$name: $number';
+      }).join('\n');
+
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('Selected Providers'),
+            content: Text(content),
+            actions: <Widget>[
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text('Close'),
+              ),
+            ],
+          );
+        },
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('No selected providers found'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  } catch (e) {
+    
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Failed to view providers'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+}
+
+
+Future<void> _saveDueDateToFirebase() async {
+  String roomId = widget.roomId;
+  String folderName = roomId;
+  String fileName = 'Service_$roomId.txt';
+
+  try {
+    firebase_storage.Reference roomsRef =
+        firebase_storage.FirebaseStorage.instance.ref().child('rooms');
+
+    firebase_storage.ListResult result = await roomsRef.listAll();
+
+    bool folderExists = false;
+
+    for (var prefix in result.prefixes) {
+      if (prefix.name == folderName) {
+        folderExists = true;
+        break;
+      }
+    }
+
+    if (!folderExists) {
+      await roomsRef.child(folderName).putString('');
+    }
+
+    // Create the content of the file with contact names and numbers
+    String content = '';
+    for (int i = 0; i < selectedContactNames.length; i++) {
+      content += 'Contact Name: ${selectedContactNames[i]}\n';
+      content += 'Contact Number: ${selectedContactNumbers[i]}\n';
+    }
+
+    firebase_storage.Reference fileRef = roomsRef.child('$folderName/$fileName');
+    await fileRef.putString(content);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Services saved successfully'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Failed to save services'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
 }
 
 
 
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: AppBar(
-        title: const Text("RentLog"),
+
+ @override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('Add Service Providers'),
+      backgroundColor: hexStringToColor("a2a595"),
+    ),
+    body: Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            hexStringToColor("a2a595"),
+            hexStringToColor("e0cdbe"),
+            hexStringToColor("b4a284"),
+          ],
+        ),
       ),
-      body: Container(
+      child: Container(
         padding: const EdgeInsets.all(32),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-
               buildButton(context, 'Upload Contacts', askContactsPermission),
               const SizedBox(height: 32),
+              buildButton(context, 'Save Providers', _saveDueDateToFirebase),
+              const SizedBox(height: 32),
+              buildButton(context, 'View Providers', viewProviders),
             ],
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
 
   Widget buildButton(BuildContext context, String text, VoidCallback onPressed) => SizedBox(
-        height: 50,
-        width: 170,
-        child: ElevatedButton(
-          onPressed: onPressed,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).primaryColor,
-            shape: const StadiumBorder(),
-          ),
-          child: Text(
-            text,
-            style: const TextStyle(fontSize: 16),
-          ),
+      height: 50,
+      width: 170,
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.white,
+          shape: const StadiumBorder(),
         ),
-      );
+        child: Text(
+          text,
+          style: const TextStyle(fontSize: 16, color: Colors.black),
+        ),
+      ),
+    );
+
+}
+
+
+Future<Directory> getApplicationDocumentsDirectory() async {
+  return await getApplicationDocumentsDirectory();
 }

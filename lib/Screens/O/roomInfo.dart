@@ -93,7 +93,7 @@ class _OwnerPageState extends State<OwnerPage> {
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               20,
-              MediaQuery.of(context).size.height * 0.08,
+              MediaQuery.of(context).size.height * 0.10,
               20,
               0,
             ),
@@ -106,7 +106,7 @@ class _OwnerPageState extends State<OwnerPage> {
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 34.0,
-                        vertical: 32.0,
+                        vertical: 25.0,
                       ),
                       backgroundColor: Colors.white,
                     ),
@@ -126,7 +126,7 @@ class _OwnerPageState extends State<OwnerPage> {
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 30.0,
-                        vertical: 32.0,
+                        vertical: 25.0,
                       ),
                       backgroundColor: Colors.white,
                     ),
@@ -153,7 +153,7 @@ class _OwnerPageState extends State<OwnerPage> {
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 30.0,
-                        vertical: 22.0,
+                        vertical: 15.0,
                       ),
                       backgroundColor: Colors.white,
                     ),
@@ -174,7 +174,7 @@ class _OwnerPageState extends State<OwnerPage> {
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 23.0,
-                        vertical: 32.0,
+                        vertical: 25.0,
                       ),
                       backgroundColor: Colors.white,
                     ),
@@ -194,7 +194,7 @@ class _OwnerPageState extends State<OwnerPage> {
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 20.0,
-                        vertical: 32.0,
+                        vertical: 25.0,
                       ),
                       backgroundColor: Colors.white,
                     ),
