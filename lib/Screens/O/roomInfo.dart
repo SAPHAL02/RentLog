@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
+import 'package:rent_log/Screens/O/MakeDuedate.dart';
+import 'package:rent_log/Screens/O/ServiceProvider.dart';
 import 'package:rent_log/Screens/O/viewComplaint.dart';
 import '../../utils/color_util.dart';
 import 'package:rent_log/Screens/O/Bill.dart';
@@ -52,37 +54,26 @@ class _OwnerPageState extends State<OwnerPage> {
   );
 }
 
+ void _navigateToDuedatePage() {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => Duedate(roomId: _uuid,),
+    ),
+  );
+}
+
+
+
+
  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight + 10),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                hexStringToColor("a2a595"),
-                hexStringToColor("e0cdbe"),
-                hexStringToColor("b4a284"),
-              ],
-            ),
-          ),
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            title: const Text(
-              'RentLog',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2.5,
-                color: Colors.white,
-              ),
-            ),
-            centerTitle: true,
-          ),
-        ),
-      ),
+      appBar: AppBar(
+      title: const Text('RentLog',),
+      backgroundColor: hexStringToColor("a2a595"),
+    ),
+      
       body: Container(
         
         width: MediaQuery.of(context).size.width,
@@ -102,7 +93,7 @@ class _OwnerPageState extends State<OwnerPage> {
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               20,
-              MediaQuery.of(context).size.height * 0.15,
+              MediaQuery.of(context).size.height * 0.08,
               20,
               0,
             ),
@@ -151,16 +142,44 @@ class _OwnerPageState extends State<OwnerPage> {
                 const SizedBox(height: 32.0),
                 Center(
                   child: ElevatedButton(
-                    onPressed: _navigateToBillPage,
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ServiceProviders(roomId: _uuid,),
+                        ),
+                      );
+                    },
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 24.0,
+                        horizontal: 30.0,
+                        vertical: 22.0,
+                      ),
+                      backgroundColor: Colors.white,
+                    ),
+                    child: const Text(
+                      'Add Service\n\t\tProviders',
+                      style: TextStyle(
+                        fontSize: 18.0,
+                        color: Colors.black,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 32.0),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: _navigateToDuedatePage,
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 23.0,
                         vertical: 32.0,
                       ),
                       backgroundColor: Colors.white,
                     ),
                     child: const Text(
-                      'Notify for bill',
+                      'Mark Duedate',
                       style: TextStyle(
                         fontSize: 18.0,
                         color: Colors.black,
@@ -174,7 +193,7 @@ class _OwnerPageState extends State<OwnerPage> {
                     onPressed: _copyUuidToClipboard,
                     style: ElevatedButton.styleFrom(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 18.0,
+                        horizontal: 20.0,
                         vertical: 32.0,
                       ),
                       backgroundColor: Colors.white,

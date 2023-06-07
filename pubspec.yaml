@@ -48,6 +48,10 @@ dependencies:
   intl: ^0.18.1
   firebase_storage: ^11.2.2
   url_launcher: ^6.1.11
+  emojis: ^0.9.9
+  flutter_emoji: ^2.4.0
+  contacts_service: ^0.6.3
+  permission_handler: ^10.2.0
   
 
 dev_dependencies:

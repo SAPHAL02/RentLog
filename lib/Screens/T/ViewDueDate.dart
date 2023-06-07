@@ -1,21 +1,22 @@
+// ignore_for_file: use_build_context_synchronously, empty_catches, non_constant_identifier_names
+
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'dart:typed_data';
-
 import 'package:rent_log/utils/color_util.dart';
 
-class ViewComplaint extends StatefulWidget {
+class ViewDuedate extends StatefulWidget {
   final String roomId;
 
-  const ViewComplaint({Key? key, required this.roomId}) : super(key: key);
+  const ViewDuedate({Key? key, required this.roomId}) : super(key: key);
 
   @override
-  State<ViewComplaint> createState() => _ViewComplaintState();
+  State<ViewDuedate> createState() => _ViewDuedateState();
 }
 
-class _ViewComplaintState extends State<ViewComplaint> {
+class _ViewDuedateState extends State<ViewDuedate> {
   bool _folderExists = false;
-  String _complaintText = '';
+  String _DuedateText = '';
 
   @override
   void initState() {
@@ -34,18 +35,18 @@ class _ViewComplaintState extends State<ViewComplaint> {
         setState(() {
           _folderExists = true;
         });
-        await _fetchComplaintText(prefix, context); // Pass the context here
+        await _fetchDuedateText(prefix, context); // Pass the context here
         break;
       }
     }
   }
 
-  Future<void> _fetchComplaintText(
+  Future<void> _fetchDuedateText(
     firebase_storage.Reference folderReference,
     BuildContext context,
   ) async {
     firebase_storage.Reference fileRef =
-        folderReference.child('complaints_${widget.roomId}.txt');
+        folderReference.child('Duedate_${widget.roomId}.txt');
 
     try {
       firebase_storage.FullMetadata metadata = await fileRef.getMetadata();
@@ -53,21 +54,21 @@ class _ViewComplaintState extends State<ViewComplaint> {
         Uint8List? downloadData = await fileRef.getData();
         if (downloadData != null) {
           List<int> content = downloadData.toList();
-          String complaintText = String.fromCharCodes(content);
+          String DuedateText = String.fromCharCodes(content);
           setState(() {
-            _complaintText = complaintText;
+            _DuedateText = DuedateText;
           });
-          return; // Exit the method if the complaint text is successfully retrieved
+          return; // Exit the method if the Duedate text is successfully retrieved
         }
       }
     } catch (e) {
-      print('Error fetching complaint text: $e');
+      
     }
 
     // Show Snackbar when file is not found
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('No Complaints found'),
+        content: Text('No Duedate found'),
         duration: Duration(seconds: 10),
       ),
     );
@@ -77,7 +78,7 @@ class _ViewComplaintState extends State<ViewComplaint> {
 Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
-      title: const Text('Complaints',),
+      title: const Text('Duedate',),
       backgroundColor: hexStringToColor("a2a595"),
     ),
     body: Container(
@@ -97,17 +98,20 @@ Widget build(BuildContext context) {
       child: Container(
         alignment: Alignment.center,
         padding: const EdgeInsets.all(26),
-        child: _folderExists && _complaintText.isNotEmpty
+        child: _folderExists && _DuedateText.isNotEmpty
             ? SingleChildScrollView(
                 child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height - 200,
-                  ),
-                  child: Text(
-                    _complaintText,
-                    style: const TextStyle(fontSize: 20),
+                constraints: BoxConstraints(
+                  maxHeight: MediaQuery.of(context).size.height - 200,
+                ),
+                child: Text(
+                  _DuedateText,
+                  style: TextStyle(
+                    fontSize: 40,
+                    color: Colors.black87, // Set the text color to white
                   ),
                 ),
+              ),
               )
             : _folderExists
                 ? const Icon(

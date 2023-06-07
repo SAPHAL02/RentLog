@@ -1,5 +1,8 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:rent_log/utils/color_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MakeComplaint extends StatefulWidget {
@@ -166,37 +169,74 @@ class _MakeComplaintState extends State<MakeComplaint> {
     );
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Complaint Page'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            TextField(
-              controller: _complaintController,
-              maxLines: 5,
-              decoration: const InputDecoration(
-                labelText: 'Enter your complaint',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: _submitComplaint,
-              child: const Text('Submit Complaint'),
-            ),
-            const SizedBox(height: 16.0),
-            ElevatedButton(
-              onPressed: _viewComplaints,
-              child: const Text('View Complaints'),
-            ),
+  
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(
+      title: const Text('RentLog'),
+      backgroundColor: hexStringToColor("a2a595"),
+    ),
+    body: Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            hexStringToColor("a2a595"),
+            hexStringToColor("e0cdbe"),
+            hexStringToColor("b4a284"),
           ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
       ),
-    );
-  }
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              TextField(
+                controller: _complaintController,
+                maxLines: 5,
+                decoration: const InputDecoration(
+                  labelText: 'Enter your complaint',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              
+              
+              const SizedBox(height: 46.0),
+              ElevatedButton(
+                onPressed: _submitComplaint,
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.white,
+                  minimumSize: const Size(160, 50),
+                ),
+                child: const Text(
+                  'Submit Complaint',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+              const SizedBox(height: 25),
+              ElevatedButton(
+                onPressed: _viewComplaints,
+                style: ElevatedButton.styleFrom(
+                  foregroundColor: Colors.black,
+                  backgroundColor: Colors.white,
+                  minimumSize: const Size(180, 50),
+                ),
+                child: const Text(
+                  'View Complaints',
+                  style: TextStyle(fontSize: 18),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
 }

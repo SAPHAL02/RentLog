@@ -163,34 +163,10 @@ class _BillInputPageState extends State<BillInputPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(kToolbarHeight + 10),
-        child: Container(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                hexStringToColor("a2a595"),
-                hexStringToColor("e0cdbe"),
-                hexStringToColor("b4a284"),
-              ],
-            ),
-          ),
-          child: AppBar(
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            title: const Text(
-              'RentLog',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                letterSpacing: 2.5,
-                color: Colors.white,
-              ),
-            ),
-            centerTitle: true,
-          ),
-        ),
-      ),
+      appBar: AppBar(
+      title: const Text('RentLog'),
+      backgroundColor: hexStringToColor("a2a595"),
+    ),
       body: Container(
         width: MediaQuery.of(context).size.width,
         height: MediaQuery.of(context).size.height,
