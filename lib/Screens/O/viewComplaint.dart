@@ -68,7 +68,7 @@ class _ViewComplaintState extends State<ViewComplaint> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('No Complaints found'),
-        duration: Duration(seconds: 10),
+        duration: Duration(seconds: 5),
       ),
     );
   }

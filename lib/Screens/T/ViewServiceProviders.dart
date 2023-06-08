@@ -69,7 +69,7 @@ class _ViewServiceProvidersState extends State<ViewServiceProviders> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('No provider found'),
-        duration: Duration(seconds: 10),
+        duration: Duration(seconds: 3),
       ),
     );
   }

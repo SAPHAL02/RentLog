@@ -13,7 +13,7 @@ import 'package:rent_log/Screens/O/roomInfo.dart';
 import '../../utils/color_util.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+
 
 class Room extends StatefulWidget {
   const Room({Key? key}) : super(key: key);
@@ -92,32 +92,7 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
     'roomIds': roomIds,
     'userEmail': userEmail, // Add the userEmail field
   });
-
-  final storageRef = firebase_storage.FirebaseStorage.instance
-      .ref()
-      .child('rooms')
-      .child(roomIds.first); // Use the first room ID generated as the folder name
-
-  try {
-    await storageRef.child('demo.txt').putString('This is a demo file.', format: firebase_storage.PutStringFormat.raw);
-    // Create a demo text file inside the room folder with the name "demo.txt"
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Room added successfully.'),
-      ),
-    );
-  } catch (error) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Error creating room folder in Firebase Storage.'),
-      ),
-    );
-  }
 }
-
-
-
 
 
 

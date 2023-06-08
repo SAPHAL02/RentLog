@@ -1,4 +1,4 @@
-// ignore_for_file: library_private_types_in_public_api, file_names
+// ignore_for_file: library_private_types_in_public_api, file_names, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
 
@@ -8,7 +8,7 @@ import 'package:rent_log/Screens/O/ServiceProvider.dart';
 import 'package:rent_log/Screens/O/viewComplaint.dart';
 import '../../utils/color_util.dart';
 import 'package:rent_log/Screens/O/Bill.dart';
-
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 
 class OwnerPage extends StatefulWidget {
@@ -29,8 +29,20 @@ class _OwnerPageState extends State<OwnerPage> {
     _uuid = widget.roomId;
   }
 
-  void _copyUuidToClipboard() {
+  Future<void> _copyUuidToClipboard() async {
     Clipboard.setData(ClipboardData(text: _uuid));
+
+  final storageRef = firebase_storage.FirebaseStorage.instance
+      .ref()
+      .child('rooms')
+      .child(_uuid); // Use the first room ID generated as the folder name
+
+  
+    await storageRef.child('demo.txt').putString('This is a demo file.', format: firebase_storage.PutStringFormat.raw);
+    // Create a demo text file inside the room folder with the name "demo.txt"
+
+   
+
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Room_id copied to clipboard')),
     );

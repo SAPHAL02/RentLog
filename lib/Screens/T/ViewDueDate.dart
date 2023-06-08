@@ -69,7 +69,7 @@ class _ViewDuedateState extends State<ViewDuedate> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('No Duedate found'),
-        duration: Duration(seconds: 10),
+        duration: Duration(seconds: 3),
       ),
     );
   }

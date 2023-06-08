@@ -27,20 +27,55 @@ class _ServiceProvidersState extends State<ServiceProviders> {
     super.initState();
   }
 
-  Future<void> askContactsPermission() async {
-    final permission = await Permission.contacts.request();
-    if (permission.isGranted) {
-      uploadContacts();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: Theme.of(context).colorScheme.error,
-          content: const Text('Please allow access to contacts'),
-          duration: const Duration(seconds: 3),
+ Future<void> askContactsPermission() async {
+  PermissionStatus permissionStatus = await Permission.contacts.status;
+
+  while (!permissionStatus.isGranted) {
+    if (permissionStatus.isPermanentlyDenied) {
+      // If the user has previously denied the permission permanently,
+      // show a dialog explaining why the permission is necessary and redirect the user to app settings.
+      showDialog(
+        context: context,
+        builder: (BuildContext context) => AlertDialog(
+          title: const Text('Permission Required'),
+          content: const Text('Please grant access to contacts in app settings to proceed.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                openAppSettings();
+              },
+              child: const Text('App Settings'),
+            ),
+          ],
         ),
       );
+      break;
     }
+
+    // Request the permission if not granted
+    permissionStatus = await Permission.contacts.request();
   }
+
+  if (permissionStatus.isGranted) {
+    // Permission granted, proceed with uploading contacts
+    uploadContacts();
+  } else {
+    // Permission not granted
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        backgroundColor: Theme.of(context).colorScheme.error,
+        content: const Text('Please allow access to contacts'),
+        duration: const Duration(seconds: 3),
+      ),
+    );
+  }
+}
+
 
  Future<void> uploadContacts() async {
   contacts = (await ContactsService.getContacts(withThumbnails: false)).toList();
