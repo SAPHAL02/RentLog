@@ -48,10 +48,7 @@ class _TenantState extends State<Tenant> {
 
   Future<void> _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    // Remove tenant IDs from shared preferences
-    // ...
-
-    // Remove stored email and password
+    
     await prefs.remove('email');
     await prefs.remove('password');
 

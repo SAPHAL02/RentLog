@@ -8,6 +8,7 @@ import 'package:rent_log/Screens/Auth/signin_screen.dart';
 import 'package:rent_log/Screens/T/MakeComplaints.dart';
 import 'package:rent_log/Screens/T/ViewDueDate.dart';
 import 'package:rent_log/Screens/T/ViewServiceProviders.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../utils/color_util.dart';
 
 
@@ -138,19 +139,26 @@ Future<void> _confirmExit() async {
               Navigator.of(context).pop(); // Close the dialog
             },
             style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.black, backgroundColor: Colors.white, // Set button text color
+              foregroundColor: Colors.black,
+              backgroundColor: Colors.white, // Set button text color
             ),
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            onPressed: () {
+            onPressed: () async {
+              SharedPreferences prefs = await SharedPreferences.getInstance();
+
+              await prefs.remove('email');
+              await prefs.remove('password');
+
               Navigator.pushReplacement(
                 context,
                 MaterialPageRoute(builder: (context) => const SignInScreen()),
               );
             },
             style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.black, backgroundColor: Colors.white, // Set button text color
+              foregroundColor: Colors.black,
+              backgroundColor: Colors.white, // Set button text color
             ),
             child: const Text('Exit'),
           ),
@@ -159,6 +167,7 @@ Future<void> _confirmExit() async {
     },
   );
 }
+
 
 
   Future<bool> _checkFolderExistence() async {
