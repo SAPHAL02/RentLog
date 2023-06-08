@@ -1,4 +1,4 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
 import 'package:rent_log/Screens/Auth/signin_screen.dart';
@@ -46,7 +46,15 @@ class _TenantState extends State<Tenant> {
     await prefs.setStringList('roomIds', createdRoomIds); // Save the updated list
   }
 
-  void _logout() {
+  Future<void> _logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    // Remove tenant IDs from shared preferences
+    // ...
+
+    // Remove stored email and password
+    await prefs.remove('email');
+    await prefs.remove('password');
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const SignInScreen()),
@@ -74,28 +82,7 @@ class _TenantState extends State<Tenant> {
     }
   }
 
-  // Show error dialog if the room ID is invalid
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Invalid Room ID'),
-        content: const Text('The entered Room ID is invalid.'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('OK'),
-          ),
-        ],
-      );
-    },
-  );
-
-
-
-
+  
 
 
   // Show error dialog if the room ID is invalid

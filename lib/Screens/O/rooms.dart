@@ -1,7 +1,10 @@
 
-import 'dart:typed_data';
 
-import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+
+
+
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,7 +13,7 @@ import 'package:rent_log/Screens/O/roomInfo.dart';
 import '../../utils/color_util.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 
 class Room extends StatefulWidget {
   const Room({Key? key}) : super(key: key);
@@ -24,14 +27,11 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
   List<String> roomIds = [];
   List<bool> roomRemovable = [];
 
-
-String getCurrentUserID() {
-  User? user = FirebaseAuth.instance.currentUser;
-  String userID = user?.uid ?? ''; // If the user is null, return an empty string
-  return userID;
-}
-
-
+  String getCurrentUserID() {
+    User? user = FirebaseAuth.instance.currentUser;
+    String userID = user?.uid ?? ''; // If the user is null, return an empty string
+    return userID;
+  }
 
   @override
   bool get wantKeepAlive => true;
@@ -42,27 +42,33 @@ String getCurrentUserID() {
     _loadRoomData();
   }
 
-  @override
-  void dispose() {
-    _saveRoomData();
-    super.dispose();
-  }
-
   Future<void> _loadRoomData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      roomNames = prefs.getStringList('roomNames') ?? [];
-      roomIds = prefs.getStringList('roomIds') ?? [];
-      roomRemovable = List.generate(roomNames.length, (_) => false);
-    });
+    String userId = getCurrentUserID();
+
+    DocumentSnapshot userSnapshot =
+        await FirebaseFirestore.instance.collection('users').doc(userId).get();
+    Map<String, dynamic>? userData = userSnapshot.data() as Map<String, dynamic>?;
+
+    if (userData != null && userData.containsKey('roomNames') && userData.containsKey('roomIds')) {
+      List<dynamic> names = userData['roomNames'];
+      List<dynamic> ids = userData['roomIds'];
+
+      setState(() {
+        roomNames = List<String>.from(names);
+        roomIds = List<String>.from(ids);
+        roomRemovable = List.generate(roomNames.length, (_) => false);
+      });
+    }
   }
 
   Future<void> _saveRoomData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('roomNames', roomNames);
-    await prefs.setStringList('roomIds', roomIds);
-  }
+    String userId = getCurrentUserID();
 
+    await FirebaseFirestore.instance.collection('users').doc(userId).update({
+      'roomNames': roomNames,
+      'roomIds': roomIds,
+    });
+  }
 
   Future<void> _addRoom() async {
   final uuid = Uuid();
@@ -87,26 +93,48 @@ String getCurrentUserID() {
     'userEmail': userEmail, // Add the userEmail field
   });
 
-  // Store room ID locally using shared preferences
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  List<String> localRoomIds = prefs.getStringList('roomIds') ?? [];
-  localRoomIds.add(newRoomId);
-  await prefs.setStringList('roomIds', localRoomIds);
+  final storageRef = firebase_storage.FirebaseStorage.instance
+      .ref()
+      .child('rooms')
+      .child(roomIds.first); // Use the first room ID generated as the folder name
 
-  // Create an email folder with the email of the current user
-  firebase_storage.Reference userEmailFolderRef = firebase_storage.FirebaseStorage.instance.ref('rooms/$userEmail/');
-  Uint8List emptyData = Uint8List.fromList([0]); // A single dummy byte
-  await userEmailFolderRef.child('$userEmail.txt').putData(emptyData);
+  try {
+    await storageRef.child('demo.txt').putString('This is a demo file.', format: firebase_storage.PutStringFormat.raw);
+    // Create a demo text file inside the room folder with the name "demo.txt"
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Room added successfully.'),
+      ),
+    );
+  } catch (error) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Error creating room folder in Firebase Storage.'),
+      ),
+    );
+  }
 }
 
 
 
-  void _logout() {
+
+
+
+  Future<void> _logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+
+    await prefs.remove('email');
+    await prefs.remove('password');
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(builder: (context) => const SignInScreen()),
     );
   }
+
+
+  
 
   @override
   Widget build(BuildContext context) {

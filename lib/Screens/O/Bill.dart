@@ -105,18 +105,16 @@ class _BillInputPageState extends State<BillInputPage> {
   final output = await getTemporaryDirectory();
   final file = File('${output.path}/bill_${widget.roomId}.pdf');
   await file.writeAsBytes(await pdf.save());
-  
 
   final storageRef = firebase_storage.FirebaseStorage.instance
-  .ref()
-  .child('rooms')
-  .child(widget.roomId)
-  .child('bill_${widget.roomId}.pdf');
+      .ref()
+      .child('rooms')
+      .child(widget.roomId)
+      .child('bill_${widget.roomId}.pdf');
 
   try {
-    final uploadTask = storageRef.putFile(file);
-    final snapshot = await uploadTask;
-    final downloadURL = await snapshot.ref.getDownloadURL();
+    await storageRef.putFile(file);
+    final downloadURL = await storageRef.getDownloadURL();
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(

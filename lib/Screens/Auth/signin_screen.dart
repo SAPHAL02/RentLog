@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:rent_log/utils/color_util.dart';
 import 'package:rent_log/Screens/O/rooms.dart';
 import 'package:rent_log/Screens/T/Tenant.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({Key? key}) : super(key: key);
@@ -20,6 +21,22 @@ class _SignInScreenState extends State<SignInScreen> {
   final TextEditingController _passwordTextController = TextEditingController();
   final TextEditingController _emailTextController = TextEditingController();
   bool loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    checkCredentials();
+  }
+
+  Future<void> checkCredentials() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String? email = prefs.getString('email');
+    String? password = prefs.getString('password');
+
+    if (email != null && password != null) {
+      signIn(email, password);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -77,26 +94,15 @@ class _SignInScreenState extends State<SignInScreen> {
                         context,
                         "Sign In",
                         () {
-                          
-                          if (_emailTextController.text.isEmpty ||
-                              _passwordTextController.text.isEmpty) {
-                            showSnackbar(context,
-                                'Please enter both email and password');
+                          String email = _emailTextController.text.trim();
+                          String password = _passwordTextController.text;
+
+                          if (email.isEmpty || password.isEmpty) {
+                            showSnackbar(context, 'Please enter both email and password');
                             return;
                           }
 
-                          FirebaseAuth.instance
-                              .signInWithEmailAndPassword(
-                            email: _emailTextController.text,
-                            password: _passwordTextController.text,
-                          )
-                              .then((value) {
-                            setState(() => loading = true);
-                            showSnackbar(context, 'Sign In Successful');
-                            route();
-                          }).onError((error, stackTrace) {
-                            showSnackbar(context, 'Invalid email or password');
-                          });
+                          signIn(email, password);
                         },
                       ),
                       signUpOption(),
@@ -179,5 +185,28 @@ class _SignInScreenState extends State<SignInScreen> {
         }
       }
     });
+  }
+
+  Future<void> signIn(String email, String password) async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      setState(() {
+        loading = true;
+      });
+      showSnackbar(context, 'Sign In Successful');
+      saveCredentials(email, password);
+      route();
+    } catch (error) {
+      showSnackbar(context, 'Invalid email or password');
+    }
+  }
+
+  Future<void> saveCredentials(String email, String password) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('email', email);
+    prefs.setString('password', password);
   }
 }
