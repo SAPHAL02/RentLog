@@ -122,19 +122,12 @@ class _BillInputPageState extends State<BillInputPage> {
 
   try {
     await storageRef.putFile(file);
-    final downloadURL = await storageRef.getDownloadURL();
 
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: const Text('PDF created and uploaded successfully.'),
-        action: SnackBarAction(
-          label: 'Open PDF',
-          onPressed: () {
-            _openPDF(downloadURL);
-          },
-        ),
-      ),
-    );
+      const SnackBar(
+        content: Text('PDF created and uploaded successfully.'),
+      )
+      );
   } catch (error) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
