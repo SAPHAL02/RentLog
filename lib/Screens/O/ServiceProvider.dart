@@ -7,6 +7,7 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:rent_log/utils/color_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rent_log/Screens/Auth/Loading.dart';
 
 class ServiceProviders extends StatefulWidget {
   final String roomId;
@@ -21,6 +22,7 @@ class _ServiceProvidersState extends State<ServiceProviders> {
   List<Contact>? contacts;
   List<String> selectedContactNames = [];
   List<String> selectedContactNumbers = [];
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -79,8 +81,7 @@ class _ServiceProvidersState extends State<ServiceProviders> {
 
  Future<void> uploadContacts() async {
   contacts = (await ContactsService.getContacts(withThumbnails: false)).toList();
-  print('Contacts: $contacts');
-
+  
   // Delay the showDialog to allow the current build cycle to complete
   await Future.delayed(Duration.zero);
 
@@ -126,17 +127,25 @@ class _ServiceProvidersState extends State<ServiceProviders> {
                         ],
                       ),
                       onTap: () {
-                        setState(() {
-                          // Add or remove the selected contact name from the list
-                          if (selectedContactNames.contains(contact.displayName)) {
-                            selectedContactNames.remove(contact.displayName);
-                            selectedContactNumbers.remove(contact.phones?.first.value);
-                          } else {
-                            selectedContactNames.add(contact.displayName ?? '');
-                            selectedContactNumbers.add(contact.phones?.first.value ?? '');
-                          }
-                        });
-                      },
+                          setState(() {
+                            final displayName = contact.displayName ?? '';
+                            final phoneNumber = contact.phones?.first.value ?? '';
+
+                            // Check if the contact is already selected using display name
+                            final contactIndex = selectedContactNames.indexOf(displayName);
+
+                            if (contactIndex != -1) {
+                              // Contact is already selected, remove it
+                              selectedContactNames.removeAt(contactIndex);
+                              selectedContactNumbers.removeAt(contactIndex);
+                            } else {
+                              // Contact is not selected, add it
+                              selectedContactNames.add(displayName);
+                              selectedContactNumbers.add(phoneNumber);
+                            }
+                          });
+                        },
+
                       selected: selectedContactNames.contains(contact.displayName),
                     );
                   },
@@ -227,6 +236,12 @@ class _ServiceProvidersState extends State<ServiceProviders> {
 
 
 Future<void> _saveDueDateToFirebase() async {
+  
+  setState(() {
+      _isLoading = true;
+    });
+
+
   String roomId = widget.roomId;
   String folderName = roomId;
   String fileName = 'Service_$roomId.txt';
@@ -275,6 +290,9 @@ Future<void> _saveDueDateToFirebase() async {
       ),
     );
   }
+  setState(() {
+      _isLoading = false;
+    });
 }
 
 
@@ -283,42 +301,44 @@ Future<void> _saveDueDateToFirebase() async {
 
 
  @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('Add Service Providers'),
-      backgroundColor: hexStringToColor("a2a595"),
-    ),
-    body: Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            hexStringToColor("a2a595"),
-            hexStringToColor("e0cdbe"),
-            hexStringToColor("b4a284"),
-          ],
-        ),
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Add Service Providers'),
+        backgroundColor: hexStringToColor("a2a595"),
       ),
-      child: Container(
-        padding: const EdgeInsets.all(32),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              buildButton(context, 'Upload Contacts', askContactsPermission),
-              const SizedBox(height: 32),
-              buildButton(context, 'Save Providers', _saveDueDateToFirebase),
-              const SizedBox(height: 32),
-              buildButton(context, 'View Providers', viewProviders),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-}
+      body: _isLoading
+          ? const Loading()
+          : Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    hexStringToColor("a2a595"),
+                    hexStringToColor("e0cdbe"),
+                    hexStringToColor("b4a284"),
+                  ],
+                ),
+              ),
+              child: Container(
+                padding: const EdgeInsets.all(32),
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      buildButton(context, 'Upload Contacts', askContactsPermission),
+                      const SizedBox(height: 32),
+                      buildButton(context, 'Save Providers', _saveDueDateToFirebase),
+                      const SizedBox(height: 32),
+                      buildButton(context, 'View Providers', viewProviders),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          );
+        }
 
 
   Widget buildButton(BuildContext context, String text, VoidCallback onPressed) => SizedBox(

@@ -1,9 +1,10 @@
-// ignore_for_file: use_build_context_synchronously
+// ignore_for_file: use_build_context_synchronously, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:rent_log/utils/color_util.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rent_log/Screens/Auth/Loading.dart';
 
 class MakeComplaint extends StatefulWidget {
   final String roomId;
@@ -17,6 +18,7 @@ class MakeComplaint extends StatefulWidget {
 class _MakeComplaintState extends State<MakeComplaint> {
   final TextEditingController _complaintController = TextEditingController();
   List<String> _complaints = [];
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -34,6 +36,10 @@ class _MakeComplaintState extends State<MakeComplaint> {
   }
 
   Future<void> _saveComplaints() async {
+    setState(() {
+    _isLoading = true;
+  });
+
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('complaints_${widget.roomId}', _complaints);
   }
@@ -88,7 +94,9 @@ class _MakeComplaintState extends State<MakeComplaint> {
           );
         },
       );
-
+      setState(() {
+    _isLoading = false;
+    });
       _complaintController.clear();
     }
   }
@@ -174,17 +182,23 @@ class _MakeComplaintState extends State<MakeComplaint> {
 Widget build(BuildContext context) {
   return Scaffold(
     appBar: AppBar(
-      title: const Text('RentLog'),
+      title: const Text(
+        'RentLog',
+      ),
       backgroundColor: hexStringToColor("a2a595"),
     ),
-    body: Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            hexStringToColor("a2a595"),
-            hexStringToColor("e0cdbe"),
-            hexStringToColor("b4a284"),
-          ],
+    body: _isLoading
+        ? const Loading()
+        : Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  hexStringToColor("a2a595"),
+                  hexStringToColor("e0cdbe"),
+                  hexStringToColor("b4a284"),
+                ],
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
         ),

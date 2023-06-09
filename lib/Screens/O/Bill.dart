@@ -9,7 +9,7 @@ import 'dart:io';
 import '../../utils/color_util.dart';
 import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
-
+import 'package:rent_log/Screens/Auth/Loading.dart';
 
 class BillInputPage extends StatefulWidget {
   final String roomId;
@@ -26,6 +26,7 @@ class _BillInputPageState extends State<BillInputPage> {
   final TextEditingController _waterBillController = TextEditingController();
   final TextEditingController _maintenanceChargesController = TextEditingController();
   double _total = 0.0;
+  bool _isLoading = false;
 
   void _calculateTotal() {
     double rentBill = double.tryParse(_rentController.text) ?? 0.0;
@@ -39,7 +40,9 @@ class _BillInputPageState extends State<BillInputPage> {
   }
 
   Future<void> _createPDF() async {
-
+    setState(() {
+      _isLoading = true;
+    });
     
   final pdf = pw.Document();
 
@@ -113,6 +116,9 @@ class _BillInputPageState extends State<BillInputPage> {
       .child('rooms')
       .child(widget.roomId)
       .child('bill_${widget.roomId}.pdf');
+  
+
+
 
   try {
     await storageRef.putFile(file);
@@ -136,7 +142,11 @@ class _BillInputPageState extends State<BillInputPage> {
       ),
     );
   }
+  setState(() {
+    _isLoading = false;
+  });
 }
+
 
   Future<void> _openPDF(String filePath) async {
     Navigator.push(
@@ -164,23 +174,25 @@ class _BillInputPageState extends State<BillInputPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-      title: const Text('RentLog'),
-      backgroundColor: hexStringToColor("a2a595"),
-    ),
-      body: Container(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              hexStringToColor("a2a595"),
-              hexStringToColor("e0cdbe"),
-              hexStringToColor("b4a284"),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+        title: const Text('RentLog'),
+        backgroundColor: hexStringToColor("a2a595"),
+      ),
+      body: _isLoading
+          ? const Loading()
+          : Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    hexStringToColor("a2a595"),
+                    hexStringToColor("e0cdbe"),
+                    hexStringToColor("b4a284"),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                ),
+              ),
         child: SingleChildScrollView(
           child: Padding(
             padding: EdgeInsets.fromLTRB(

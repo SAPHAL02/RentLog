@@ -21,30 +21,30 @@ class _TenantState extends State<Tenant> {
   List<String> createdRoomIds = []; // Updated list
 
   @override
-  void initState() {
-    super.initState();
-    _roomIdController = TextEditingController();
-    _loadRoomData(); // Load the room data
-  }
+void initState() {
+  super.initState();
+  _roomIdController = TextEditingController();
+  _loadRoomData(); // Load the room data
+}
 
   @override
   void dispose() {
     _roomIdController.dispose();
-    _saveRoomData(); // Save the room data
     super.dispose();
   }
 
   Future<void> _loadRoomData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  List<String> storedRoomIds = prefs.getStringList('roomIds') ?? [];
+  if (storedRoomIds.isNotEmpty) {
     setState(() {
-      createdRoomIds = prefs.getStringList('roomIds') ?? []; // Use the 'roomIds' from Room class
+      print("hello");
+      createdRoomIds = storedRoomIds;
+      _roomIdController.text = storedRoomIds.last; // Autofill with the last stored room ID
+      print(_roomIdController.text);
     });
   }
-
-  Future<void> _saveRoomData() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('roomIds', createdRoomIds); // Save the updated list
-  }
+}
 
   Future<void> _logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -71,6 +71,7 @@ class _TenantState extends State<Tenant> {
 
     if (querySnapshot.size > 0) {
       // Room ID exists in at least one document
+      await _storeRoomId(roomId); // Store the room ID in shared preferences
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => TenantInfo(roomId: roomId)),
@@ -78,6 +79,35 @@ class _TenantState extends State<Tenant> {
       return; // Exit the method if the room ID is valid
     }
   }
+
+  // Show error dialog if the room ID is invalid
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text('Invalid Room ID'),
+        content: const Text('The entered Room ID is invalid.'),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text('OK'),
+          ),
+        ],
+      );
+    },
+  );
+}
+
+Future<void> _storeRoomId(String roomId) async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  List<String> storedRoomIds = prefs.getStringList('roomIds') ?? [];
+  if (!storedRoomIds.contains(roomId)) {
+    storedRoomIds.add(roomId);
+    await prefs.setStringList('roomIds', storedRoomIds);
+  }
+
 
   
 
@@ -154,10 +184,19 @@ class _TenantState extends State<Tenant> {
                   ),
                 ),
                 const SizedBox(height: 20.0),
-                ElevatedButton(
+                  ElevatedButton(
                   onPressed: _onEnterRoomPressed,
-                  child: const Text('Enter Room'),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.white, // Set the button background color
+                  ),
+                  child: const Text(
+                    'Enter Room',
+                    style: TextStyle(
+                      color: Colors.black, // Set the button text color
+                    ),
+                  ),
                 ),
+
               ],
             ),
           ),

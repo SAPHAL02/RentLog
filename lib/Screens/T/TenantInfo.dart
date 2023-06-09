@@ -10,7 +10,7 @@ import 'package:rent_log/Screens/T/ViewDueDate.dart';
 import 'package:rent_log/Screens/T/ViewServiceProviders.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../utils/color_util.dart';
-
+import 'package:rent_log/Screens/Auth/Loading.dart';
 
 class TenantInfo extends StatefulWidget {
   final String roomId;
@@ -26,10 +26,14 @@ class _TenantInfoState extends State<TenantInfo> {
   Stream<firebase_storage.ListResult>? stream; // Stream for listening to changes in the folder
   String alertContent = '';
   bool hasNewNotification = false;
-
+  bool _isLoading = false;
 
 
   void showBill() async {
+    setState(() {
+    _isLoading = true;
+  });
+
   bool doesFolderExist = await _checkFolderExistence();
 
   if (doesFolderExist) {
@@ -97,6 +101,9 @@ class _TenantInfoState extends State<TenantInfo> {
       },
     );
   }
+   setState(() {
+    _isLoading = false;
+    });
 }
 
 
@@ -271,16 +278,18 @@ Future<void> _confirmExit() async {
         ),
         backgroundColor: hexStringToColor("a2a595"),
       ),
-      body: Container(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              hexStringToColor("a2a595"),
-              hexStringToColor("e0cdbe"),
-              hexStringToColor("b4a284"),
-            ],
+      body: _isLoading
+        ? const Loading()
+        : Container(
+            width: MediaQuery.of(context).size.width,
+            height: MediaQuery.of(context).size.height,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  hexStringToColor("a2a595"),
+                  hexStringToColor("e0cdbe"),
+                  hexStringToColor("b4a284"),
+                ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
           ),
