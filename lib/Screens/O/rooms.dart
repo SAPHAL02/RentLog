@@ -327,9 +327,83 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
                 },
               ),
             ),
-          ],
-        ),
+            Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              padding: const EdgeInsets.only(bottom: 20.0),
+              child: DropdownButton<String>(
+                items: roomNames.map((String roomName) {
+                  return DropdownMenuItem<String>(
+                    value: roomName,
+                    child: Text(
+                      roomName,
+                      style: const TextStyle(
+                        color: Colors.black87,
+                      ),
+                    ),
+                  );
+                }).toList(),
+                onChanged: (String? selectedRoomName) {
+                  if (selectedRoomName != null) {
+                    int roomIndex = roomNames.indexOf(selectedRoomName);
+                    if (roomIndex != -1) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: Text(
+                              "Change Room ID for $selectedRoomName",
+                              style: const TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                            content: const Text(
+                              "Are you sure you want to change the Room ID for this room?",
+                              style: const TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                            backgroundColor: hexStringToColor("05716c"),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.of(context).pop(),
+                                child: const Text("No"),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  final uuid = Uuid();
+                                  String newRoomId = uuid.v4();
+
+                                  setState(() {
+                                    roomIds[roomIndex] = newRoomId;
+                                  });
+
+                                  _saveRoomData();
+
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text("Yes"),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    }
+                  }
+                },
+                hint: const Text(
+                  "Change Room ID if you have new Tenant",
+                  style: TextStyle(
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+        
       ),
-    );
-  }
+    ),
+  );
+}
 }
