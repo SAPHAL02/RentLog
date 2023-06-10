@@ -33,7 +33,7 @@ class _ResetPasswordState extends State<ResetPassword> {
               gradient: LinearGradient(colors: [
             
             hexStringToColor("05716c"),
-            hexStringToColor("b4a284")
+            hexStringToColor("031163")
           ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
           child: SingleChildScrollView(
               child: Padding(

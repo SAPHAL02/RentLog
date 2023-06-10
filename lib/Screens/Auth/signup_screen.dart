@@ -7,6 +7,7 @@ import 'package:rent_log/reusable/reusable_widget.dart';
 import 'package:rent_log/utils/color_util.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:email_validator/email_validator.dart';
 
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({Key? key}) : super(key: key);
@@ -133,11 +134,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               style: TextStyle(
                                 fontSize: 20,
                                 fontWeight: FontWeight.bold,
-                                color: Colors.black54,
+                                color: Colors.white,
                               ),
                             ),
                             DropdownButton<String>(
-                              dropdownColor: Colors.white,
+                              dropdownColor: const Color.fromARGB(255, 32, 103, 168),
                               isExpanded: false,
                               iconEnabledColor: Colors.white,
                               focusColor: Colors.white,
@@ -147,7 +148,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                   child: Text(
                                     dropDownStringItem,
                                     style: const TextStyle(
-                                      color: Colors.black54,
+                                      color: Colors.white,
                                       fontWeight: FontWeight.bold,
                                       fontSize: 20,
                                     ),
@@ -166,25 +167,26 @@ class _SignUpScreenState extends State<SignUpScreen> {
                         ),
                       ),
                       firebaseUIButton(context, "Sign Up", () {
-                        if (_emailTextController.text.isEmpty) {
-                          showSnackbar(
-                              context, 'Please enter an email address.');
-                        } else if (_passwordTextController.text.isEmpty) {
-                          showSnackbar(context, 'Please enter a password.');
-                        } else if (_confirmPasswordTextController
-                            .text.isEmpty) {
-                          showSnackbar(context, 'Please confirm the password.');
-                        } else if (_passwordTextController.text !=
-                            _confirmPasswordTextController.text) {
-                          showSnackbar(context, 'Passwords do not match.');
-                        } else if (_passwordTextController.text.length < 6) {
-                          showSnackbar(context,
-                              'Password should be at least 6 characters.');
-                        } else {
-                          setState(() => loading = true);
-                          createUser();
-                        }
-                      }),
+                      if (_emailTextController.text.isEmpty) {
+                        showSnackbar(context, 'Please enter an email address.');
+                      } else if (!EmailValidator.validate(_emailTextController.text)) {
+                        showSnackbar(context, 'Please enter a valid email address.');
+                      } else if (_passwordTextController.text.isEmpty) {
+                        showSnackbar(context, 'Please enter a password.');
+                      } else if (_confirmPasswordTextController.text.isEmpty) {
+                        showSnackbar(context, 'Please confirm the password.');
+                      } else if (_passwordTextController.text !=
+                          _confirmPasswordTextController.text) {
+                        showSnackbar(context, 'Passwords do not match.');
+                      } else if (_passwordTextController.text.length < 6) {
+                        showSnackbar(
+                            context, 'Password should be at least 6 characters.');
+                      } else {
+                        setState(() => loading = true);
+                        createUser();
+                      }
+                    }),
+
                     ],
                   ),
                 ),
