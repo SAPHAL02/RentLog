@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously, empty_catches, non_constant_identifier_names
-
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'dart:typed_data';
@@ -61,9 +59,7 @@ class _ViewDuedateState extends State<ViewDuedate> {
           return; // Exit the method if the Duedate text is successfully retrieved
         }
       }
-    } catch (e) {
-      
-    }
+    } catch (e) {}
 
     // Show Snackbar when file is not found
     ScaffoldMessenger.of(context).showSnackBar(
@@ -75,53 +71,54 @@ class _ViewDuedateState extends State<ViewDuedate> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('Duedate',),
-      backgroundColor: hexStringToColor("a2a595"),
-    ),
-    body: Container(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            hexStringToColor("a2a595"),
-            hexStringToColor("e0cdbe"),
-            hexStringToColor("b4a284"),
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Duedate',
+        ),
+        backgroundColor: hexStringToColor("05716c"),
+      ),
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              hexStringToColor("05716c"),
+              hexStringToColor("031163"),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(26),
+          child: _folderExists && _DuedateText.isNotEmpty
+              ? SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height - 200,
+                    ),
+                    child: Text(
+                      _DuedateText,
+                      style: const TextStyle(
+                        fontSize: 40,
+                        color: Colors.white, // Set the text color to white
+                      ),
+                    ),
+                  ),
+                )
+              : _folderExists
+                  ? const Icon(
+                      Icons.sentiment_satisfied,
+                      size: 100,
+                      color: Colors.white, // Set the icon color to white
+                    )
+                  : const CircularProgressIndicator(),
         ),
       ),
-      child: Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(26),
-        child: _folderExists && _DuedateText.isNotEmpty
-            ? SingleChildScrollView(
-                child: ConstrainedBox(
-                constraints: BoxConstraints(
-                  maxHeight: MediaQuery.of(context).size.height - 200,
-                ),
-                child: Text(
-                  _DuedateText,
-                  style: TextStyle(
-                    fontSize: 40,
-                    color: Colors.black87, // Set the text color to white
-                  ),
-                ),
-              ),
-              )
-            : _folderExists
-                ? const Icon(
-                    Icons.sentiment_satisfied,
-                    size: 100,
-                  )
-                : const CircularProgressIndicator(),
-      ),
-    ),
-  );
-}
-
+    );
+  }
 }

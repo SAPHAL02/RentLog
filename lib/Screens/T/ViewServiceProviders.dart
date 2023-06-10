@@ -8,7 +8,8 @@ import 'package:rent_log/utils/color_util.dart';
 class ViewServiceProviders extends StatefulWidget {
   final String roomId;
 
-  const ViewServiceProviders({Key? key, required this.roomId}) : super(key: key);
+  const ViewServiceProviders({Key? key, required this.roomId})
+      : super(key: key);
 
   @override
   State<ViewServiceProviders> createState() => _ViewServiceProvidersState();
@@ -91,7 +92,7 @@ class _ViewServiceProvidersState extends State<ViewServiceProviders> {
         title: const Text(
           'Service Providers',
         ),
-        backgroundColor: hexStringToColor("a2a595"),
+        backgroundColor: hexStringToColor("05716c"),
       ),
       body: Container(
         width: MediaQuery.of(context).size.width,
@@ -99,9 +100,8 @@ class _ViewServiceProvidersState extends State<ViewServiceProviders> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              hexStringToColor("a2a595"),
-              hexStringToColor("e0cdbe"),
-              hexStringToColor("b4a284"),
+              hexStringToColor("05716c"),
+              hexStringToColor("031163"),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -119,11 +119,15 @@ class _ViewServiceProvidersState extends State<ViewServiceProviders> {
                     child: GestureDetector(
                       // Wrap the Text widget with GestureDetector
                       onLongPress: () {
-                        _copyToClipboard(_complaintText); // Call the copy function
+                        _copyToClipboard(
+                            _complaintText); // Call the copy function
                       },
                       child: SelectableText(
                         _complaintText,
-                        style: const TextStyle(fontSize: 20),
+                        style: const TextStyle(
+                          fontSize: 20,
+                          color: Colors.white, // Set the text color to white
+                        ),
                       ),
                     ),
                   ),
@@ -132,6 +136,7 @@ class _ViewServiceProvidersState extends State<ViewServiceProviders> {
                   ? const Icon(
                       Icons.sentiment_satisfied,
                       size: 100,
+                      color: Colors.white, // Set the icon color to white
                     )
                   : const CircularProgressIndicator(),
         ),

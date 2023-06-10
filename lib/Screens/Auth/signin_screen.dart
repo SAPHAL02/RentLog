@@ -49,9 +49,9 @@ class _SignInScreenState extends State<SignInScreen> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    hexStringToColor("a2a595"),
-                    hexStringToColor("e0cdbe"),
-                    hexStringToColor("b4a284"),
+                    
+                    hexStringToColor("05716c"),
+                    hexStringToColor("031163"),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -98,7 +98,8 @@ class _SignInScreenState extends State<SignInScreen> {
                           String password = _passwordTextController.text;
 
                           if (email.isEmpty || password.isEmpty) {
-                            showSnackbar(context, 'Please enter both email and password');
+                            showSnackbar(context,
+                                'Please enter both email and password');
                             return;
                           }
 

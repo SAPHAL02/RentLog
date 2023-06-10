@@ -23,54 +23,73 @@ class TenantInfo extends StatefulWidget {
 
 class _TenantInfoState extends State<TenantInfo> {
   String? pdfFilePath; // Variable to hold the PDF file path
-  Stream<firebase_storage.ListResult>? stream; // Stream for listening to changes in the folder
+  Stream<firebase_storage.ListResult>?
+      stream; // Stream for listening to changes in the folder
   String alertContent = '';
   bool hasNewNotification = false;
   bool _isLoading = false;
 
-
   void showBill() async {
     setState(() {
-    _isLoading = true;
-  });
+      _isLoading = true;
+    });
 
-  bool doesFolderExist = await _checkFolderExistence();
+    bool doesFolderExist = await _checkFolderExistence();
 
-  if (doesFolderExist) {
-    String? filePath = await _findPDFFilePath();
+    if (doesFolderExist) {
+      String? filePath = await _findPDFFilePath();
 
-    if (filePath != null) {
-      setState(() {
-        pdfFilePath = filePath; // Store the PDF file path in the local variable
-      });
+      if (filePath != null) {
+        setState(() {
+          pdfFilePath =
+              filePath; // Store the PDF file path in the local variable
+        });
 
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => Scaffold(
-            appBar: AppBar(
-              title: const Text('Bill'),
-              backgroundColor: hexStringToColor("a2a595"), // Set AppBar color
-            ),
-            body: Container(
-              padding: const EdgeInsets.all(16.0),
-              child: PDFView(
-                filePath: pdfFilePath,
-                fitEachPage: true, // Fit each page of the PDF
-                defaultPage: 0, // Set the default page to display
-                pageFling: true, // Enable page fling
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => Scaffold(
+              appBar: AppBar(
+                title: const Text('Bill'),
+                backgroundColor: hexStringToColor("05716c"), // Set AppBar color
+              ),
+              body: Container(
+                padding: const EdgeInsets.all(16.0),
+                child: PDFView(
+                  filePath: pdfFilePath,
+                  fitEachPage: true, // Fit each page of the PDF
+                  defaultPage: 0, // Set the default page to display
+                  pageFling: true, // Enable page fling
+                ),
               ),
             ),
           ),
-        ),
-      );
+        );
+      } else {
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: const Text('Error'),
+              content: const Text('The Bill does not exist.'),
+              actions: [
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: const Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
     } else {
       showDialog(
         context: context,
         builder: (BuildContext context) {
           return AlertDialog(
-            title: const Text('Error'),
-            content: const Text('The Bill does not exist.'),
+            content: const Text('No Bill is generated.'),
             actions: [
               ElevatedButton(
                 onPressed: () {
@@ -83,143 +102,115 @@ class _TenantInfoState extends State<TenantInfo> {
         },
       );
     }
-  } else {
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  void _navigateToDuedatePage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ViewDuedate(roomId: widget.roomId),
+      ),
+    );
+  }
+
+  void _navigateToServicePage() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ViewServiceProviders(roomId: widget.roomId),
+      ),
+    );
+  }
+
+  Future<void> _confirmExit() async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          content: const Text('No Bill is generated.'),
+          title: const Text('Confirm Exit'),
+          content: const Text('Are you sure you want to exit the room?'),
+          backgroundColor: hexStringToColor("05716c"), // Set background color
           actions: [
             ElevatedButton(
               onPressed: () {
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Close the dialog
               },
-              child: const Text('OK'),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.white, // Set button text color
+              ),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
+
+                await prefs.remove('email');
+                await prefs.remove('password');
+
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SignInScreen()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.white, // Set button text color
+              ),
+              child: const Text('Exit'),
             ),
           ],
         );
       },
     );
   }
-   setState(() {
-    _isLoading = false;
-    });
-}
-
-
-
-
-void _navigateToDuedatePage() {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => ViewDuedate(roomId: widget.roomId),
-    ),
-  );
-}
-
-void _navigateToServicePage() {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => ViewServiceProviders(roomId: widget.roomId),
-    ),
-  );
-}
-
-
-
-
-
-
-Future<void> _confirmExit() async {
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Confirm Exit'),
-        content: const Text('Are you sure you want to exit the room?'),
-        backgroundColor: hexStringToColor("DAE9BE"), // Set background color
-        actions: [
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.black,
-              backgroundColor: Colors.white, // Set button text color
-            ),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              SharedPreferences prefs = await SharedPreferences.getInstance();
-
-              await prefs.remove('email');
-              await prefs.remove('password');
-
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const SignInScreen()),
-              );
-            },
-            style: ElevatedButton.styleFrom(
-              foregroundColor: Colors.black,
-              backgroundColor: Colors.white, // Set button text color
-            ),
-            child: const Text('Exit'),
-          ),
-        ],
-      );
-    },
-  );
-}
-
-
 
   Future<bool> _checkFolderExistence() async {
     String folderPath = 'rooms/${widget.roomId}';
     firebase_storage.Reference folderRef =
         firebase_storage.FirebaseStorage.instance.ref().child(folderPath);
     firebase_storage.ListResult listResult = await folderRef.list();
-    
+
     return listResult.items.isNotEmpty;
   }
 
   Future<String?> _findPDFFilePath() async {
-  String folderPath = 'rooms/${widget.roomId}';
-  firebase_storage.Reference folderRef =
-      firebase_storage.FirebaseStorage.instance.ref().child(folderPath);
+    String folderPath = 'rooms/${widget.roomId}';
+    firebase_storage.Reference folderRef =
+        firebase_storage.FirebaseStorage.instance.ref().child(folderPath);
 
-  firebase_storage.ListResult listResult = await folderRef.listAll();
+    firebase_storage.ListResult listResult = await folderRef.listAll();
 
-  for (var item in listResult.items) {
-    if (item.name == 'bill_${widget.roomId}.pdf') {
-      String filePath = await _downloadPDF(item);
-      return filePath;
+    for (var item in listResult.items) {
+      if (item.name == 'bill_${widget.roomId}.pdf') {
+        String filePath = await _downloadPDF(item);
+        return filePath;
+      }
     }
+
+    return null;
   }
-
-  return null;
-}
-
 
   Future<String> _downloadPDF(firebase_storage.Reference storageRef) async {
-  Directory appDocDir = await getApplicationDocumentsDirectory();
-  String appDocPath = appDocDir.path;
-  String fileName = 'bill_${widget.roomId}_${DateTime.now().millisecondsSinceEpoch}.pdf';
-  String filePath = '$appDocPath/$fileName';
+    Directory appDocDir = await getApplicationDocumentsDirectory();
+    String appDocPath = appDocDir.path;
+    String fileName =
+        'bill_${widget.roomId}_${DateTime.now().millisecondsSinceEpoch}.pdf';
+    String filePath = '$appDocPath/$fileName';
 
-  File file = File(filePath);
-  if (file.existsSync()) {
-    // If the file already exists, return the file path
+    File file = File(filePath);
+    if (file.existsSync()) {
+      // If the file already exists, return the file path
+      return filePath;
+    }
+
+    await storageRef.writeToFile(file);
+
     return filePath;
   }
-
-  await storageRef.writeToFile(file);
-
-  return filePath;
-}
 
   Stream<firebase_storage.ListResult> _listenForChanges() {
     String folderPath = 'rooms/${widget.roomId}';
@@ -276,128 +267,127 @@ Future<void> _confirmExit() async {
             ),
           ],
         ),
-        backgroundColor: hexStringToColor("a2a595"),
+        backgroundColor: hexStringToColor("05716c"),
       ),
       body: _isLoading
-        ? const Loading()
-        : Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  hexStringToColor("a2a595"),
-                  hexStringToColor("e0cdbe"),
-                  hexStringToColor("b4a284"),
-                ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.fromLTRB(
-              20,
-              MediaQuery.of(context).size.height * 0.13,
-              20,
-              0,
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Center(
-                  child: ElevatedButton(
-                    onPressed: showBill,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 44.0,
-                        vertical: 32.0,
-                      ),
-                      backgroundColor: Colors.white,
-                    ),
-                    child: const Text(
-                      'Show Bill',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
+          ? const Loading()
+          : Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    hexStringToColor("05716c"),
+                    hexStringToColor("031163"),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
-                const SizedBox(height: 32.0),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => MakeComplaint(roomId: widget.roomId),
+              ),
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    20,
+                    MediaQuery.of(context).size.height * 0.13,
+                    20,
+                    0,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: showBill,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 44.0,
+                              vertical: 32.0,
+                            ),
+                            backgroundColor: Colors.white,
+                          ),
+                          child: const Text(
+                            'Show Bill',
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              color: Colors.black,
+                            ),
+                          ),
                         ),
-                      );
-                    }, // Disable the button if roomId is not passed
+                      ),
+                      const SizedBox(height: 32.0),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    MakeComplaint(roomId: widget.roomId),
+                              ),
+                            );
+                          }, // Disable the button if roomId is not passed
 
-                    
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10.0,
-                        vertical: 32.0,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10.0,
+                              vertical: 32.0,
+                            ),
+                            backgroundColor: Colors.white,
+                          ),
+                          child: const Text(
+                            'Make Complaints',
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
                       ),
-                      backgroundColor: Colors.white,
-                    ),
-                    child: const Text(
-                      'Make Complaints',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        color: Colors.black,
+                      const SizedBox(height: 32.0),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: _navigateToDuedatePage,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 48.0,
+                              vertical: 32.0,
+                            ),
+                            backgroundColor: Colors.white,
+                          ),
+                          child: const Text(
+                            'DueDate',
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 32.0),
+                      Center(
+                        child: ElevatedButton(
+                          onPressed: _navigateToServicePage,
+                          style: ElevatedButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10.0,
+                              vertical: 32.0,
+                            ),
+                            backgroundColor: Colors.white,
+                          ),
+                          child: const Text(
+                            'Service providers',
+                            style: TextStyle(
+                              fontSize: 18.0,
+                              color: Colors.black,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                const SizedBox(height: 32.0),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: _navigateToDuedatePage,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 48.0,
-                        vertical: 32.0,
-                      ),
-                      backgroundColor: Colors.white,
-                    ),
-                    child: const Text(
-                      'DueDate',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 32.0),
-                Center(
-                  child: ElevatedButton(
-                    onPressed: _navigateToServicePage,
-                    style: ElevatedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10.0,
-                        vertical: 32.0,
-                      ),
-                      backgroundColor: Colors.white,
-                    ),
-                    child: const Text(
-                      'Service providers',
-                      style: TextStyle(
-                        fontSize: 18.0,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
-        ),
-      ),
     );
   }
 }

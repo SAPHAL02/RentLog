@@ -74,50 +74,54 @@ class _ViewComplaintState extends State<ViewComplaint> {
   }
 
   @override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text('Complaints',),
-      backgroundColor: hexStringToColor("a2a595"),
-    ),
-    body: Container(
-      width: MediaQuery.of(context).size.width,
-      height: MediaQuery.of(context).size.height,
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [
-            hexStringToColor("a2a595"),
-            hexStringToColor("e0cdbe"),
-            hexStringToColor("b4a284"),
-          ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Complaints',
+        ),
+        backgroundColor: hexStringToColor("05716c"),
+      ),
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        height: MediaQuery.of(context).size.height,
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              hexStringToColor("05716c"),
+              hexStringToColor("031163"),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.all(26),
+          child: _folderExists && _complaintText.isNotEmpty
+              ? SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height - 200,
+                    ),
+                    child: Text(
+                      _complaintText,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        color: Colors.white, // Set text color to white
+                      ),
+                    ),
+                  ),
+                )
+              : _folderExists
+                  ? const Icon(
+                      Icons.sentiment_satisfied,
+                      size: 100,
+                      color: Colors.white, // Set icon color to white
+                    )
+                  : const CircularProgressIndicator(),
         ),
       ),
-      child: Container(
-        alignment: Alignment.center,
-        padding: const EdgeInsets.all(26),
-        child: _folderExists && _complaintText.isNotEmpty
-            ? SingleChildScrollView(
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    maxHeight: MediaQuery.of(context).size.height - 200,
-                  ),
-                  child: Text(
-                    _complaintText,
-                    style: const TextStyle(fontSize: 20),
-                  ),
-                ),
-              )
-            : _folderExists
-                ? const Icon(
-                    Icons.sentiment_satisfied,
-                    size: 100,
-                  )
-                : const CircularProgressIndicator(),
-      ),
-    ),
-  );
-}
-
+    );
+  }
 }

@@ -37,8 +37,8 @@ class _MakeComplaintState extends State<MakeComplaint> {
 
   Future<void> _saveComplaints() async {
     setState(() {
-    _isLoading = true;
-  });
+      _isLoading = true;
+    });
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setStringList('complaints_${widget.roomId}', _complaints);
@@ -95,8 +95,8 @@ class _MakeComplaintState extends State<MakeComplaint> {
         },
       );
       setState(() {
-    _isLoading = false;
-    });
+        _isLoading = false;
+      });
       _complaintController.clear();
     }
   }
@@ -177,80 +177,91 @@ class _MakeComplaintState extends State<MakeComplaint> {
     );
   }
 
-  
-@override
-Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(
-      title: const Text(
-        'RentLog',
-      ),
-      backgroundColor: hexStringToColor("a2a595"),
-    ),
-    body: _isLoading
-        ? const Loading()
-        : Container(
-            width: MediaQuery.of(context).size.width,
-            height: MediaQuery.of(context).size.height,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [
-                  hexStringToColor("a2a595"),
-                  hexStringToColor("e0cdbe"),
-                  hexStringToColor("b4a284"),
-                ],
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'RentLog',
         ),
+        backgroundColor: hexStringToColor("05716c"),
       ),
-      child: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              TextField(
-                controller: _complaintController,
-                maxLines: 5,
-                decoration: const InputDecoration(
-                  labelText: 'Enter your complaint',
-                  border: OutlineInputBorder(),
+      body: _isLoading
+          ? const Loading()
+          : Container(
+              width: MediaQuery.of(context).size.width,
+              height: MediaQuery.of(context).size.height,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  colors: [
+                    hexStringToColor("05716c"),
+                    hexStringToColor("031163"),
+                  ],
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
                 ),
               ),
-              
-              
-              const SizedBox(height: 46.0),
-              ElevatedButton(
-                onPressed: _submitComplaint,
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  backgroundColor: Colors.white,
-                  minimumSize: const Size(160, 50),
-                ),
-                child: const Text(
-                  'Submit Complaint',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ),
-              const SizedBox(height: 25),
-              ElevatedButton(
-                onPressed: _viewComplaints,
-                style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.black,
-                  backgroundColor: Colors.white,
-                  minimumSize: const Size(180, 50),
-                ),
-                child: const Text(
-                  'View Complaints',
-                  style: TextStyle(fontSize: 18),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    ),
-  );
-}
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      TextField(
+                        controller: _complaintController,
+                        maxLines: 5,
+                        style: const TextStyle(
+                          color: Colors.white, // Set the text color
+                        ),
+                        cursorColor: Colors.white, // Set the cursor color
+                        decoration: const InputDecoration(
+                          labelText: 'Enter your complaint',
+                          labelStyle: TextStyle(
+                            color: Colors.white, // Set the label color
+                          ),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white), // Set the border color
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white), // Set the enabled border color
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderSide: BorderSide(color: Colors.white), // Set the focused border color
+                          ),
+                        ),
+                      ),
 
+                      const SizedBox(height: 46.0),
+                      ElevatedButton(
+                        onPressed: _submitComplaint,
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.black,
+                          backgroundColor: Colors.white,
+                          minimumSize: const Size(160, 50),
+                        ),
+                        child: const Text(
+                          'Submit Complaint',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                      const SizedBox(height: 25),
+                      ElevatedButton(
+                        onPressed: _viewComplaints,
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.black,
+                          backgroundColor: Colors.white,
+                          minimumSize: const Size(180, 50),
+                        ),
+                        child: const Text(
+                          'View Complaints',
+                          style: TextStyle(fontSize: 18),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+    );
+  }
 }

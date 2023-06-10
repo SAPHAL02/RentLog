@@ -1,8 +1,3 @@
-
-
-
-
-
 // ignore_for_file: use_build_context_synchronously
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -13,7 +8,6 @@ import 'package:rent_log/Screens/O/roomInfo.dart';
 import '../../utils/color_util.dart';
 import 'package:uuid/uuid.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
 
 class Room extends StatefulWidget {
   const Room({Key? key}) : super(key: key);
@@ -29,7 +23,8 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
 
   String getCurrentUserID() {
     User? user = FirebaseAuth.instance.currentUser;
-    String userID = user?.uid ?? ''; // If the user is null, return an empty string
+    String userID =
+        user?.uid ?? ''; // If the user is null, return an empty string
     return userID;
   }
 
@@ -47,9 +42,12 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
 
     DocumentSnapshot userSnapshot =
         await FirebaseFirestore.instance.collection('users').doc(userId).get();
-    Map<String, dynamic>? userData = userSnapshot.data() as Map<String, dynamic>?;
+    Map<String, dynamic>? userData =
+        userSnapshot.data() as Map<String, dynamic>?;
 
-    if (userData != null && userData.containsKey('roomNames') && userData.containsKey('roomIds')) {
+    if (userData != null &&
+        userData.containsKey('roomNames') &&
+        userData.containsKey('roomIds')) {
       List<dynamic> names = userData['roomNames'];
       List<dynamic> ids = userData['roomIds'];
 
@@ -71,78 +69,115 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
   }
 
   Future<void> _addRoom() async {
-  final uuid = Uuid();
-  String newRoomId = uuid.v4(); // Generate a unique room ID
-  int newRoomNumber = roomNames.length + 1;
-  String newRoomName = "Room $newRoomNumber";
+    final uuid = Uuid();
+    String newRoomId = uuid.v4(); // Generate a unique room ID
+    int newRoomNumber = roomNames.length + 1;
+    String newRoomName = "Room $newRoomNumber";
 
-  setState(() {
-    roomNames.add(newRoomName);
-    roomIds.add(newRoomId); // Associate the ID with the room
-    roomRemovable.add(false);
-  });
+    setState(() {
+      roomNames.add(newRoomName);
+      roomIds.add(newRoomId); // Associate the ID with the room
+      roomRemovable.add(false);
+    });
 
-  String userId = getCurrentUserID(); // Get the current user's ID
-  String userEmail = FirebaseAuth.instance.currentUser?.email ?? ''; // Get the current user's email
+    String userId = getCurrentUserID(); // Get the current user's ID
+    String userEmail = FirebaseAuth.instance.currentUser?.email ??
+        ''; // Get the current user's email
 
-  // Store room ID and associated email in Firebase Firestore
-  DocumentReference userRef = FirebaseFirestore.instance.collection('users').doc(userId);
-  await userRef.update({
-    'roomNames': roomNames,
-    'roomIds': roomIds,
-    'userEmail': userEmail, // Add the userEmail field
-  });
-}
-
-
-
-  Future<void> _logout() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    await prefs.remove('email');
-    await prefs.remove('password');
-
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const SignInScreen()),
-    );
+    // Store room ID and associated email in Firebase Firestore
+    DocumentReference userRef =
+        FirebaseFirestore.instance.collection('users').doc(userId);
+    await userRef.update({
+      'roomNames': roomNames,
+      'roomIds': roomIds,
+      'userEmail': userEmail, // Add the userEmail field
+    });
   }
 
+  Future<void> _confirmExit() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+            title: const Text(
+              'Confirm Exit',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+            content: const Text(
+              'Are you sure you want to exit?',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          backgroundColor: hexStringToColor("05716c"), // Set background color
+          actions: [
+            ElevatedButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Close the dialog
+              },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.white, // Set button text color
+              ),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              onPressed: () async {
+                SharedPreferences prefs = await SharedPreferences.getInstance();
 
-  
+                await prefs.remove('email');
+                await prefs.remove('password');
+
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(builder: (context) => const SignInScreen()),
+                );
+              },
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.black,
+                backgroundColor: Colors.white, // Set button text color
+              ),
+              child: const Text('Exit'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
     super.build(context);
     return Scaffold(
       appBar: AppBar(
-        elevation: 0, // Remove the shadow
-        backgroundColor: hexStringToColor("a2a595"), // Set the background color of the AppBar
-        title: const Text(
-          'RentLog',
-          style: TextStyle(
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-            letterSpacing: 1.5,
-            color: Colors.white,
-          ),
+        automaticallyImplyLeading: false,
+        title: Row(
+          children: [
+            const Text('RentLog'),
+            const Spacer(),
+            TextButton(
+              onPressed: _confirmExit,
+              child: const Text(
+                '\t\t\tExit\nRoom',
+                style: TextStyle(
+                  fontSize: 18,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+          ],
         ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            onPressed: _logout,
-            icon: const Icon(Icons.logout),
-          ),
-        ],
+        backgroundColor: hexStringToColor("05716c"),
       ),
       extendBodyBehindAppBar: true, // Extend the body behind the AppBar
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              hexStringToColor("a2a595"),
-              hexStringToColor("e0cdbe"),
-              hexStringToColor("b4a284"),
+              hexStringToColor("05716c"),
+              hexStringToColor("031163"),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -166,7 +201,7 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
                       child: Container(
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(20),
-                          color: const Color.fromARGB(255, 158, 149, 132),
+                          color: const Color.fromARGB(255, 25, 126, 139),
                         ),
                         child: const Column(
                           mainAxisAlignment: MainAxisAlignment.center,
@@ -174,7 +209,8 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
                             Icon(Icons.add, size: 50, color: Colors.white),
                             Text(
                               "Add Room",
-                              style: TextStyle(color: Colors.white, fontSize: 30),
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 30),
                             ),
                           ],
                         ),
@@ -191,7 +227,8 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => OwnerPage(roomId: roomIds[index]),
+                            builder: (context) =>
+                                OwnerPage(roomId: roomIds[index]),
                           ),
                         );
                       },
@@ -204,14 +241,17 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
                               builder: (BuildContext context) {
                                 return AlertDialog(
                                   title: const Text("Delete Room"),
-                                  content: const Text("Are you sure you want to delete this room?"),
+                                  content: const Text(
+                                      "Are you sure you want to delete this room?"),
                                   actions: [
                                     TextButton(
-                                      onPressed: () => Navigator.of(context).pop(false),
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(false),
                                       child: const Text("CANCEL"),
                                     ),
                                     TextButton(
-                                      onPressed: () => Navigator.of(context).pop(true),
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(true),
                                       child: const Text("DELETE"),
                                     ),
                                   ],
@@ -221,34 +261,65 @@ class _RoomState extends State<Room> with AutomaticKeepAliveClientMixin {
                           }
                           return false;
                         },
-                        onDismissed: (DismissDirection direction) {
+                        onDismissed: (direction) {
                           setState(() {
                             roomNames.removeAt(index);
+                            roomIds.removeAt(index);
                             roomRemovable.removeAt(index);
-                            _saveRoomData(); // Save room data
                           });
+                          _saveRoomData();
                         },
                         background: Container(
-                          color: const Color.fromARGB(163, 170, 158, 147),
-                          alignment: Alignment.centerRight,
-                          padding: const EdgeInsets.symmetric(horizontal: 10),
-                          child: const Icon(Icons.delete, color: Colors.white),
+                          color: Colors.red,
+                          child: const Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(20, 0, 20, 0),
+                              child: Icon(
+                                Icons.delete,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                        secondaryBackground: Container(
+                          color: const Color.fromARGB(255, 25, 126, 139),
+                          child: const Align(
+                            alignment: Alignment.centerRight,
+                            child: Padding(
+                              padding: EdgeInsets.fromLTRB(0, 0, 20, 0),
+                              child: Icon(
+                                Icons.delete,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
                         ),
                         child: Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(20),
-                            color: const Color.fromARGB(255, 158, 149, 132),
+                            color: roomRemovable[index]
+                                ? Colors.white
+                                : const Color.fromARGB(255, 25, 126, 139),
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.home, size: 50, color: Colors.white),
+                              const Icon(
+                                Icons.home,
+                                size: 50,
+                                color: Colors.white,
+                              ),
                               Text(
                                 roomNames[index],
-                                style: const TextStyle(color: Colors.white, fontSize: 20),
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                ),
                               ),
                             ],
                           ),
+
                         ),
                       ),
                     );

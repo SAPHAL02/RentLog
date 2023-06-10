@@ -1,5 +1,3 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
@@ -60,8 +58,6 @@ class _DuedateState extends State<Duedate> {
     }
   }
 
-
-
   Future<void> _saveDueDateToFirebase() async {
     String roomId = widget.roomId;
     String folderName = roomId;
@@ -97,33 +93,31 @@ class _DuedateState extends State<Duedate> {
   }
 
   Future<void> _selectDate(BuildContext context) async {
-  final DateTime? picked = await showDatePicker(
-    context: context,
-    initialDate: _selectedDate,
-    firstDate: DateTime(2000),
-    lastDate: DateTime(2100),
-    builder: (BuildContext context, Widget? child) {
-      return Theme(
-        data: Theme.of(context).copyWith(
-          dialogBackgroundColor: Colors.white,
-          hintColor: Colors.blue, // Set the desired accent color
-          colorScheme: const ColorScheme.light(
-            primary: Colors.blue, // Set the desired primary color
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: Theme.of(context).copyWith(
+            dialogBackgroundColor: Colors.white,
+            colorScheme: const ColorScheme.light(
+              primary: Colors.blue, // Set the desired primary color
+            ),
           ),
-        ),
-        child: child!,
-      );
-    },
-  );
+          child: child!,
+        );
+      },
+    );
 
-  if (picked != null && picked != _selectedDate) {
-    setState(() {
-      _selectedDate = picked;
-      _dateController.text = DateFormat('dd-MM-yyyy').format(_selectedDate);
-    });
+    if (picked != null && picked != _selectedDate) {
+      setState(() {
+        _selectedDate = picked;
+        _dateController.text = DateFormat('dd-MM-yyyy').format(_selectedDate);
+      });
+    }
   }
-}
-
 
   Future<void> _saveDueDate() async {
     final directory = await getApplicationDocumentsDirectory();
@@ -146,7 +140,7 @@ class _DuedateState extends State<Duedate> {
         title: const Text(
           'Due Date',
         ),
-        backgroundColor: hexStringToColor("a2a595"),
+        backgroundColor: hexStringToColor("05716c"),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -154,9 +148,8 @@ class _DuedateState extends State<Duedate> {
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
             colors: [
-              hexStringToColor("a2a595"),
-              hexStringToColor("e0cdbe"),
-              hexStringToColor("b4a284"),
+              hexStringToColor("05716c"),
+              hexStringToColor("031163"),
             ],
           ),
         ),
@@ -171,9 +164,14 @@ class _DuedateState extends State<Duedate> {
                   child: IgnorePointer(
                     child: TextFormField(
                       controller: _dateController,
-                      decoration: const InputDecoration(
+                      style: TextStyle(color: Colors.white), // Set text color
+                      decoration: InputDecoration(
                         labelText: 'Due Date',
-                        suffixIcon: Icon(Icons.calendar_today),
+                        labelStyle: TextStyle(color: Colors.white), // Set label color
+                        suffixIcon: Icon(
+                          Icons.calendar_today,
+                          color: Colors.blue, // Set icon color
+                        ),
                       ),
                     ),
                   ),

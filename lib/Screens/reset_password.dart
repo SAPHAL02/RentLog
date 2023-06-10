@@ -14,7 +14,6 @@ class ResetPassword extends StatefulWidget {
 class _ResetPasswordState extends State<ResetPassword> {
   final TextEditingController _emailTextController = TextEditingController();
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -32,31 +31,33 @@ class _ResetPasswordState extends State<ResetPassword> {
           height: MediaQuery.of(context).size.height,
           decoration: BoxDecoration(
               gradient: LinearGradient(colors: [
-                hexStringToColor("a2a595"),
-                hexStringToColor("e0cdbe"),
-                hexStringToColor("b4a284")
-              ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
-          child: SingleChildScrollView(child: Padding(
-            padding: EdgeInsets.fromLTRB(20, MediaQuery
-                .of(context)
-                .size
-                .height * 0.2, 20, 0), child: Column(children: <Widget>[
-            logoWidget("assets/images/house.png"),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    reusableTextField("Enter Email Id", Icons.person_outline, false,
-                        _emailTextController),
-                    const SizedBox(
-                      height: 20,
-                    ),
-                    firebaseUIButton(context, "Reset Password", () {
-                      FirebaseAuth.instance.sendPasswordResetEmail(email: _emailTextController.text)
-                          .then((value) => Navigator.of(context).pop());
-                    })
-                  ],
+            
+            hexStringToColor("05716c"),
+            hexStringToColor("b4a284")
+          ], begin: Alignment.topCenter, end: Alignment.bottomCenter)),
+          child: SingleChildScrollView(
+              child: Padding(
+            padding: EdgeInsets.fromLTRB(
+                20, MediaQuery.of(context).size.height * 0.2, 20, 0),
+            child: Column(
+              children: <Widget>[
+                logoWidget("assets/images/house.png"),
+                const SizedBox(
+                  height: 20,
                 ),
-              ))),
+                reusableTextField("Enter Email Id", Icons.person_outline, false,
+                    _emailTextController),
+                const SizedBox(
+                  height: 20,
+                ),
+                firebaseUIButton(context, "Reset Password", () {
+                  FirebaseAuth.instance
+                      .sendPasswordResetEmail(email: _emailTextController.text)
+                      .then((value) => Navigator.of(context).pop());
+                })
+              ],
+            ),
+          ))),
     );
   }
 }

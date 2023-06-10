@@ -18,7 +18,8 @@ class SignUpScreen extends StatefulWidget {
 class _SignUpScreenState extends State<SignUpScreen> {
   final TextEditingController _passwordTextController = TextEditingController();
   final TextEditingController _emailTextController = TextEditingController();
-  final TextEditingController _confirmPasswordTextController = TextEditingController();
+  final TextEditingController _confirmPasswordTextController =
+      TextEditingController();
   bool loading = false;
   var options = [
     'Owner',
@@ -82,9 +83,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
               decoration: BoxDecoration(
                 gradient: LinearGradient(
                   colors: [
-                    hexStringToColor("a2a595"),
-                    hexStringToColor("e0cdbe"),
-                    hexStringToColor("b4a284"),
+                    
+                    hexStringToColor("05716c"),
+                    hexStringToColor("031163"),
                   ],
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
@@ -170,7 +171,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               context, 'Please enter an email address.');
                         } else if (_passwordTextController.text.isEmpty) {
                           showSnackbar(context, 'Please enter a password.');
-                        } else if (_confirmPasswordTextController.text.isEmpty) {
+                        } else if (_confirmPasswordTextController
+                            .text.isEmpty) {
                           showSnackbar(context, 'Please confirm the password.');
                         } else if (_passwordTextController.text !=
                             _confirmPasswordTextController.text) {

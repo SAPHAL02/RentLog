@@ -1,0 +1,22 @@
+A Flutter app called Rentlog that authenticates users using Firebase and provides a easier way to communicate between owner and tenant. The owner can send bills, mark due dates, provide service provider contacts, and check for any complaints from the tenant's side. Tenant on the other side can see the bill ,duedate, service provider details and can raise its complaint. owner can create rooms and gets roomid for each whihc can be given to the tenant to accesss that particular room only.
+
+
+
+
+
+Rentlog: Flutter App for Efficient Owner-Tenant Communication:
+
+Developed Rentlog, a Flutter app that simplifies communication between property owners and tenants, enhancing the rental management process.
+Implemented Firebase authentication to securely authenticate users, ensuring privacy and data security.
+Seamless Owner-Tenant Interaction and Billing Management:
+
+Created a user-friendly interface that allows owners to send bills, set due dates, and provide service provider contacts within the Rentlog app.
+Tenants can conveniently view bills, due dates, and access service provider details, ensuring transparent and efficient rental management.
+Complaint Management and Issue Resolution:
+
+Enabled tenants to raise complaints within the Rentlog app, facilitating quick communication and issue resolution.
+Owners can monitor and address complaints effectively, enhancing tenant satisfaction and overall property management.
+Room-specific Access and Management:
+
+Implemented room creation functionality, providing each room with a unique room ID that owners can share with tenants for restricted access to specific rooms.
+Improved security and privacy by ensuring that tenants can only access information related to their assigned room, enhancing data segregation and privacy.

@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
+import 'package:rent_log/utils/color_util.dart';
 
 class Loading extends StatelessWidget {
   const Loading({super.key});
@@ -9,7 +10,16 @@ class Loading extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.brown[100],
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            hexStringToColor("05716c"),
+            hexStringToColor("031163"),
+          ],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ),
+      ),
       child: const Center(
         child: SpinKitSpinningLines(
           color: Colors.white,
@@ -19,3 +29,10 @@ class Loading extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
+
+
