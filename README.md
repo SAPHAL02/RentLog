@@ -1,16 +1,11 @@
 # rent_log
 
-A rent detail keeper app.
+• Developed an innovative Flutter app to facilitate owner-tenant communication, streamline bill management, and
+resolve complaints effectively.
+• Owners can send bills, set due dates, and provide service provider contacts. Tenants can view bills, due dates, and
+raise complaints.
+• Unique room IDs allow owners to grant tenants access to specific rooms, ensuring data privacy.
+• Simplified rental management process, enabling efficient interaction and issue resolution for improved owner-tenant
+satisfaction.
 
-## Getting Started
 
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
